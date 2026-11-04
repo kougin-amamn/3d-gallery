@@ -1,0 +1,89 @@
+{
+  "colors": {
+    "space": "#03050A",
+    "ink": "#D8E1EA",
+    "quiet": "#6F7C8C",
+    "accent": "#FFB46B",
+    "panel": "rgba(10, 16, 26, 0.55)",
+    "line": "rgba(216, 225, 234, 0.12)"
+  },
+  "orbitColors": {
+    "mercury": [
+      0.55,
+      0.52,
+      0.5
+    ],
+    "venus": [
+      0.8,
+      0.68,
+      0.45
+    ],
+    "earth": [
+      0.35,
+      0.6,
+      1.0
+    ],
+    "mars": [
+      0.9,
+      0.45,
+      0.3
+    ],
+    "jupiter": [
+      0.85,
+      0.7,
+      0.55
+    ],
+    "saturn": [
+      0.85,
+      0.78,
+      0.55
+    ],
+    "uranus": [
+      0.5,
+      0.85,
+      0.9
+    ],
+    "neptune": [
+      0.4,
+      0.55,
+      1.0
+    ],
+    "pluto": [
+      0.6,
+      0.5,
+      0.45
+    ],
+    "moon": [
+      0.6,
+      0.6,
+      0.6
+    ],
+    "default": [
+      0.5,
+      0.55,
+      0.65
+    ]
+  },
+  "dotColors": {
+    "mercury": "#A79E94",
+    "venus": "#EDD9AE",
+    "earth": "#7DA9E6",
+    "moon": "#B9B6B0",
+    "mars": "#D47A4C",
+    "jupiter": "#E3CDAE",
+    "io": "#E8D98A",
+    "europa": "#EFEAE0",
+    "ganymede": "#A39A8E",
+    "callisto": "#7A6E62",
+    "saturn": "#E3D3AE",
+    "titan": "#D9A050",
+    "uranus": "#B0DCE0",
+    "neptune": "#6F94E6",
+    "pluto": "#C9A888"
+  },
+  "orbitOpacity": {
+    "system": 0.3,
+    "focused": 0.08,
+    "moons": 0.22
+  }
+}

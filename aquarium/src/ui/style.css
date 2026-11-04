@@ -1,0 +1,148 @@
+:root {
+  --ink: #E9F4F5;
+  --ink-quiet: rgba(233, 244, 245, 0.62);
+  --glass: rgba(8, 30, 44, 0.42);
+  --glass-border: rgba(200, 236, 240, 0.16);
+  --accent: #7FD8E0;
+  --warm: #FF7A45;
+  --font: "Hiragino Sans", "Noto Sans JP", "Yu Gothic UI", system-ui, sans-serif;
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #0B3A53;
+  color: var(--ink);
+  font-family: var(--font);
+  -webkit-tap-highlight-color: transparent;
+}
+
+#view {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+  outline: none;
+}
+
+.sr-only {
+  position: absolute; width: 1px; height: 1px; overflow: hidden;
+  clip: rect(0 0 0 0); white-space: nowrap;
+}
+
+/* ---- 読み込み画面 ---- */
+.loading {
+  position: fixed; inset: 0; display: grid; place-items: center;
+  background: radial-gradient(120% 90% at 50% 10%, #2A7D8C 0%, #0D3A4E 55%, #04131F 100%);
+  transition: opacity 1.4s ease;
+  z-index: 10;
+}
+.loading.done { opacity: 0; pointer-events: none; }
+.loading-inner { text-align: center; }
+.loading-text {
+  margin: 28px 0 0; font-size: 13px; letter-spacing: 0.24em; color: var(--ink-quiet);
+}
+.ripple { position: relative; width: 56px; height: 56px; margin: 0 auto; }
+.ripple span {
+  position: absolute; inset: 0; border-radius: 50%;
+  border: 1px solid rgba(200, 240, 244, 0.7);
+  animation: ripple 2.4s cubic-bezier(.2,.6,.3,1) infinite;
+}
+.ripple span:nth-child(2) { animation-delay: 1.2s; }
+@keyframes ripple {
+  from { transform: scale(0.2); opacity: 1; }
+  to   { transform: scale(1.4); opacity: 0; }
+}
+
+/* ---- エラー ---- */
+.error {
+  position: fixed; inset: 0; display: grid; place-content: center; text-align: center;
+  padding: 24px; background: #04131F; z-index: 20;
+}
+.error[hidden] { display: none; }
+.error-title { font-size: 16px; margin: 0 0 8px; }
+.error-message { font-size: 13px; color: var(--ink-quiet); margin: 0; max-width: 34em; line-height: 1.7; }
+
+/* ---- タイトル ---- */
+.title {
+  position: fixed; left: max(24px, env(safe-area-inset-left)); top: max(22px, env(safe-area-inset-top));
+  display: flex; flex-direction: column; gap: 4px;
+  pointer-events: none; opacity: 0;
+  transition: opacity 2.5s ease;
+  text-shadow: 0 1px 12px rgba(0, 20, 30, 0.45);
+}
+.title.show { opacity: 1; }
+.title-main { font-size: 13px; letter-spacing: 0.5em; font-weight: 600; }
+.title-sub { font-size: 11px; letter-spacing: 0.3em; color: var(--ink-quiet); }
+
+/* ---- 操作バー ---- */
+.hud {
+  position: fixed; left: 50%; bottom: max(20px, env(safe-area-inset-bottom));
+  transform: translate(-50%, 12px);
+  display: flex; align-items: center; gap: 6px;
+  padding: 6px;
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 999px;
+  -webkit-backdrop-filter: blur(14px) saturate(1.2);
+  backdrop-filter: blur(14px) saturate(1.2);
+  opacity: 0; pointer-events: none;
+  transition: opacity .5s ease, transform .5s ease;
+  z-index: 5;
+  max-width: calc(100vw - 24px);
+}
+.hud.show { opacity: 1; transform: translate(-50%, 0); pointer-events: auto; }
+
+.hud button, .hud select {
+  font: inherit; color: var(--ink); background: transparent; border: 0;
+  cursor: pointer;
+}
+.hud-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 36px; padding: 0 14px; border-radius: 999px;
+  font-size: 13px; letter-spacing: 0.06em;
+  transition: background .2s ease;
+}
+.hud-btn.icon-only { width: 36px; padding: 0; justify-content: center; }
+.hud-btn svg { width: 18px; height: 18px; fill: currentColor; stroke: currentColor; }
+.hud-btn:hover { background: rgba(255, 255, 255, 0.08); }
+.hud-btn[data-act="feed"] svg { color: var(--warm); }
+.hud-btn[data-act="feed"].pulse { animation: pulse .6s ease; }
+@keyframes pulse { 50% { background: rgba(255, 122, 69, 0.22); } }
+
+a.hud-btn { color: var(--ink); text-decoration: none; }
+.hud-sep { width: 1px; height: 20px; background: var(--glass-border); }
+
+.hud-seg { display: inline-flex; background: rgba(0, 0, 0, 0.18); border-radius: 999px; padding: 2px; }
+.hud-seg button {
+  height: 32px; min-width: 40px; padding: 0 12px; border-radius: 999px;
+  font-size: 13px; color: var(--ink-quiet);
+  transition: background .25s ease, color .25s ease;
+}
+.hud-seg button[aria-checked="true"] { background: rgba(127, 216, 224, 0.22); color: var(--ink); }
+
+.hud-select select {
+  appearance: none; -webkit-appearance: none;
+  height: 36px; padding: 0 14px; border-radius: 999px;
+  font-size: 13px; color: var(--ink-quiet);
+}
+.hud-select select:hover { background: rgba(255, 255, 255, 0.08); color: var(--ink); }
+.hud-select option { color: #0B3A53; }
+
+.hud :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+@media (max-width: 480px) {
+  .hud-btn span:not(.sr-only) { display: none; }
+  .hud-btn { width: 36px; padding: 0; justify-content: center; }
+  .hud-seg button { min-width: 34px; padding: 0 8px; }
+  .hud-select select { padding: 0 10px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ripple span { animation-duration: 6s; }
+}

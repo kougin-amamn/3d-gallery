@@ -1,0 +1,33 @@
+{
+  "site": {
+    "title": "3D作品集",
+    "en": "3D WORKS",
+    "lead": "ブラウザで動く3D作品を集めました。どれもインストール不要で、開くとすぐに動きます。"
+  },
+  "works": [
+    {
+      "id": "solar-system",
+      "title": "太陽系ビューア",
+      "en": "Solar System Viewer",
+      "href": "./solar-system/",
+      "thumb": "./assets/thumbs/solar-system.jpg",
+      "accent": "#FFB46B",
+      "description": "実際の暦で動く3D太陽系。今日の日付で惑星が並び、天体を選んで飛んでいけます。時間を進めたり、実寸表示に切り替えたりもできます。",
+      "features": ["JPLの軌道要素で位置を計算", "地球は写真テクスチャ", "実在の星 約9,100個"],
+      "controls": "ドラッグで回転・ホイールで拡大・天体をクリックで移動",
+      "version": "v0.2"
+    },
+    {
+      "id": "aquarium",
+      "title": "静かな水槽",
+      "en": "Aquarium",
+      "href": "./aquarium/",
+      "thumb": "./assets/thumbs/aquarium.jpg",
+      "accent": "#7FD8E0",
+      "description": "光と水と魚の動きだけで見入る、静かな3Dアクアリウム。群れで泳ぐ魚に餌をやり、朝・昼・夜を切り替えられます。",
+      "features": ["群れの動き(Boids)", "光の筋と揺らぐ光の網目", "朝・昼・夜の3つの時間帯"],
+      "controls": "ドラッグで視点を回す・Fキーで餌やり",
+      "version": "v0.1"
+    }
+  ]
+}

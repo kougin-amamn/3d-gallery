@@ -1,0 +1,51 @@
+{
+  "default": "auto",
+  "auto": {
+    "desktop": "high",
+    "mobile": "medium",
+    "warmupSeconds": 2.5,
+    "windowSeconds": 3,
+    "downgradeBelowFps": 46
+  },
+  "tiers": {
+    "low": {
+      "label": "低",
+      "pixelRatioMax": 1.0,
+      "msaa": 0,
+      "shadows": 0,
+      "bloom": false,
+      "aberration": 0.0,
+      "fish": 0.45,
+      "plants": 0.5,
+      "snow": 0.3,
+      "rays": 0.5,
+      "pebbles": 0.4
+    },
+    "medium": {
+      "label": "中",
+      "pixelRatioMax": 1.5,
+      "msaa": 4,
+      "shadows": 1024,
+      "bloom": true,
+      "aberration": 0.6,
+      "fish": 0.75,
+      "plants": 0.8,
+      "snow": 0.65,
+      "rays": 0.8,
+      "pebbles": 0.8
+    },
+    "high": {
+      "label": "高",
+      "pixelRatioMax": 2.0,
+      "msaa": 4,
+      "shadows": 2048,
+      "bloom": true,
+      "aberration": 1.0,
+      "fish": 1.0,
+      "plants": 1.0,
+      "snow": 1.0,
+      "rays": 1.0,
+      "pebbles": 1.0
+    }
+  }
+}

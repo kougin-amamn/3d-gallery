@@ -1,0 +1,51 @@
+{
+  "default": "auto",
+  "auto": {
+    "desktop": "high",
+    "mobile": "medium",
+    "warmupSeconds": 3,
+    "windowSeconds": 3,
+    "downgradeBelowFps": 45
+  },
+  "tiers": {
+    "low": {
+      "label": "低",
+      "pixelRatioMax": 1.0,
+      "msaa": 0,
+      "bloom": false,
+      "bakeWidth": 1024,
+      "earthTexture": 0,
+      "sphereSegments": 64,
+      "atmoSteps": 5,
+      "starMagLimit": 5.5,
+      "belts": 0.4,
+      "flare": 0.6
+    },
+    "medium": {
+      "label": "中",
+      "pixelRatioMax": 1.25,
+      "msaa": 4,
+      "bloom": true,
+      "bakeWidth": 2048,
+      "earthTexture": 1,
+      "sphereSegments": 96,
+      "atmoSteps": 6,
+      "starMagLimit": 6.5,
+      "belts": 0.7,
+      "flare": 1.0
+    },
+    "high": {
+      "label": "高",
+      "pixelRatioMax": 1.5,
+      "msaa": 4,
+      "bloom": true,
+      "bakeWidth": 2048,
+      "earthTexture": 1,
+      "sphereSegments": 128,
+      "atmoSteps": 8,
+      "starMagLimit": 99,
+      "belts": 1.0,
+      "flare": 1.0
+    }
+  }
+}

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>3D作品集</title>
+  <meta name="description" content="ブラウザで動く3D作品の一覧。太陽系ビューアと静かな水槽。">
+  <meta name="theme-color" content="#05070B">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2305070B'/%3E%3Cpath d='M16 6l9 5v10l-9 5-9-5V11z' fill='none' stroke='%23DCE3EA' stroke-width='1.6'/%3E%3Cpath d='M7 11l9 5 9-5M16 16v10' fill='none' stroke='%23DCE3EA' stroke-width='1.6'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+JP:wght@400;500;600&family=Saira+Condensed:wght@500;600&display=swap">
+  <link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+  <div class="page">
+    <header class="head">
+      <p class="eyebrow" id="site-en">3D WORKS</p>
+      <h1 id="site-title">3D作品集</h1>
+      <p class="lead" id="site-lead"></p>
+    </header>
+
+    <main>
+      <ul class="works" id="works" aria-live="polite">
+        <li class="work skeleton" aria-hidden="true"><div class="thumb"></div><div class="body"><p>読み込み中…</p></div></li>
+      </ul>
+      <p class="error" id="error" hidden></p>
+    </main>
+
+    <footer class="foot">
+      <p>動作環境: WebGL2 に対応したブラウザ(最新の Chrome / Edge / Safari / Firefox)。古い端末では動きが重くなることがあります。</p>
+      <p>素材: 地球の画像 Solar System Scope(CC BY 4.0)、恒星データ Yale Bright Star Catalog(HEASARC)、Three.js(MIT License)。ほかの表現はコードで手続き生成しています。</p>
+    </footer>
+  </div>
+  <script type="module" src="./assets/portal.js"></script>
+</body>
+</html>

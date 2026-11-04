@@ -1,0 +1,189 @@
+{
+  "sources": {
+    "orbits": "JPL Solar System Dynamics, Approximate Positions of the Planets (E.M. Standish). 冥王星は同ページの旧版の値",
+    "rotation": "IAU WGCCRE Report 2015 (北極方向と本初子午線。月と海王星の周期項は省略)",
+    "physical": "NASA Planetary Fact Sheet の平均値"
+  },
+  "display": {
+    "radiusK": 1.6,
+    "distanceK": 6000,
+    "distanceP": 0.6,
+    "moonBase": 1.8,
+    "moonK": 0.45,
+    "nightFill": 0.06
+  },
+  "bodies": [
+    {
+      "id": "sun", "name": "太陽", "en": "Sun", "type": "star", "key": "0",
+      "radiusKm": 695700,
+      "display": { "radius": 1100 },
+      "surface": { "kind": "sun", "colors": ["#FFFFFF"] },
+      "rotation": { "ra0": 286.13, "dec0": 63.87, "W0": 84.176, "Wdot": 14.1844 },
+      "info": { "rotationText": "約25.4日(赤道付近)", "temp": "表面 約5,500°C", "desc": "太陽系の質量の99.8%を占める恒星。表面の粒状斑は対流する高温のガスです。" }
+    },
+    {
+      "id": "mercury", "name": "水星", "en": "Mercury", "type": "planet", "key": "1", "parent": "sun",
+      "radiusKm": 2439.7,
+      "orbit": {
+        "table1": { "values": [0.38709927, 0.20563593, 7.00497902, 252.25032350, 77.45779628, 48.33076593], "rates": [0.00000037, 0.00001906, -0.00594749, 149472.67411175, 0.16047689, -0.12534081] },
+        "table2": { "values": [0.38709843, 0.20563661, 7.00559432, 252.25166724, 77.45771895, 48.33961819], "rates": [0.00000000, 0.00002123, -0.00590158, 149472.67486623, 0.15940013, -0.12214182] }
+      },
+      "rotation": { "ra0": 281.0103, "raRate": -0.0328, "dec0": 61.4155, "decRate": -0.0049, "W0": 329.5988, "Wdot": 6.1385108 },
+      "surface": { "kind": "cratered", "colors": ["#4B4743", "#7E7770", "#A79E94", "#5E5852"], "maria": 0.25, "craters": 1.0, "bump": 1.4 },
+      "info": { "rotationText": "58.6日", "temp": "−173〜427°C", "desc": "太陽に最も近い惑星。大気がほとんどなく、昼夜の温度差が600°Cに達します。" }
+    },
+    {
+      "id": "venus", "name": "金星", "en": "Venus", "type": "planet", "key": "2", "parent": "sun",
+      "radiusKm": 6051.8,
+      "orbit": {
+        "table1": { "values": [0.72333566, 0.00677672, 3.39467605, 181.97909950, 131.60246718, 76.67984255], "rates": [0.00000390, -0.00004107, -0.00078890, 58517.81538729, 0.00268329, -0.27769418] },
+        "table2": { "values": [0.72332102, 0.00676399, 3.39777545, 181.97970850, 131.76755713, 76.67261496], "rates": [-0.00000026, -0.00005107, 0.00043494, 58517.81560260, 0.05679648, -0.27274174] }
+      },
+      "rotation": { "ra0": 272.76, "dec0": 67.16, "W0": 160.20, "Wdot": -1.4813688 },
+      "surface": { "kind": "venus", "colors": ["#B58A4E", "#D9B77E", "#EDD9AE", "#9C7442"], "bump": 0.0 },
+      "atmosphere": { "color": [1.0, 0.82, 0.55], "height": 0.045, "strength": 1.6, "haze": 0.55 },
+      "info": { "rotationText": "243日(逆向き)", "temp": "約464°C", "desc": "厚い二酸化炭素の大気と硫酸の雲に覆われ、温室効果で鉛も溶ける高温です。" }
+    },
+    {
+      "id": "earth", "name": "地球", "en": "Earth", "type": "planet", "key": "3", "parent": "sun",
+      "radiusKm": 6371.0,
+      "orbit": {
+        "barycenter": true,
+        "table1": { "values": [1.00000261, 0.01671123, -0.00001531, 100.46457166, 102.93768193, 0.0], "rates": [0.00000562, -0.00004392, -0.01294668, 35999.37244981, 0.32327364, 0.0] },
+        "table2": { "values": [1.00000018, 0.01673163, -0.00054346, 100.46691572, 102.93005885, -5.11260389], "rates": [-0.00000003, -0.00003661, -0.01337178, 35999.37306329, 0.31795260, -0.24123856] }
+      },
+      "rotation": { "ra0": 0.0, "raRate": -0.641, "dec0": 90.0, "decRate": -0.557, "W0": 190.147, "Wdot": 360.9856235 },
+      "textures": {
+        "day": ["assets/textures/earth_day_2048.jpg", "assets/textures/earth_day_4096.jpg"],
+        "night": ["assets/textures/earth_night_2048.jpg", "assets/textures/earth_night_4096.jpg"],
+        "brc": ["assets/textures/earth_bump_roughness_clouds_2048.jpg", "assets/textures/earth_bump_roughness_clouds_4096.jpg"]
+      },
+      "atmosphere": { "color": [0.28, 0.52, 1.0], "height": 0.028, "strength": 1.0, "haze": 0.0 },
+      "info": { "rotationText": "23時間56分", "temp": "平均 約15°C", "desc": "液体の水と生命がある唯一の既知の天体。夜側には都市の明かりが見えます。" }
+    },
+    {
+      "id": "moon", "name": "月", "en": "Moon", "type": "moon", "parent": "earth",
+      "radiusKm": 1737.4,
+      "moon": { "model": "lunar", "periodDays": 27.321661 },
+      "rotation": { "tidal": true },
+      "surface": { "kind": "cratered", "colors": ["#3E3D3B", "#8C8A86", "#B9B6B0", "#605E5A"], "maria": 0.7, "craters": 0.8, "bump": 1.2 },
+      "info": { "rotationText": "27.3日(常に同じ面を地球に向ける)", "temp": "−173〜127°C", "desc": "地球のただ一つの衛星。暗い「海」は溶岩が固まった平原です。" }
+    },
+    {
+      "id": "mars", "name": "火星", "en": "Mars", "type": "planet", "key": "4", "parent": "sun",
+      "radiusKm": 3389.5,
+      "orbit": {
+        "table1": { "values": [1.52371034, 0.09339410, 1.84969142, -4.55343205, -23.94362959, 49.55953891], "rates": [0.00001847, 0.00007882, -0.00813131, 19140.30268499, 0.44441088, -0.29257343] },
+        "table2": { "values": [1.52371243, 0.09336511, 1.85181869, -4.56813164, -23.91744784, 49.71320984], "rates": [0.00000097, 0.00009149, -0.00724757, 19140.29934243, 0.45223625, -0.26852431] }
+      },
+      "rotation": { "ra0": 317.269202, "raRate": -0.10927547, "dec0": 54.432516, "decRate": -0.05827105, "W0": 176.049863, "Wdot": 350.891982443297 },
+      "surface": { "kind": "mars", "colors": ["#7A3A1E", "#B5653A", "#D49260", "#4E2A1C"], "craters": 0.35, "bump": 1.0 },
+      "atmosphere": { "color": [0.95, 0.62, 0.45], "height": 0.018, "strength": 0.35, "haze": 0.0 },
+      "info": { "rotationText": "24時間37分", "temp": "平均 約−63°C", "desc": "酸化鉄の砂で赤く見える惑星。太陽系最大の火山オリンポス山があります。" }
+    },
+    {
+      "id": "jupiter", "name": "木星", "en": "Jupiter", "type": "planet", "key": "5", "parent": "sun",
+      "radiusKm": 69911, "oblateness": 0.06487,
+      "orbit": {
+        "table1": { "values": [5.20288700, 0.04838624, 1.30439695, 34.39644051, 14.72847983, 100.47390909], "rates": [-0.00011607, -0.00013253, -0.00183714, 3034.74612775, 0.21252668, 0.20469106] },
+        "table2": { "values": [5.20248019, 0.04853590, 1.29861416, 34.33479152, 14.27495244, 100.29282654], "rates": [-0.00002864, 0.00018026, -0.00322699, 3034.90371757, 0.18199196, 0.13024619], "extra": [-0.00012452, 0.06064060, -0.35635438, 38.35125000] }
+      },
+      "rotation": { "ra0": 268.056595, "raRate": -0.006499, "dec0": 64.495303, "decRate": 0.002413, "W0": 284.95, "Wdot": 870.536 },
+      "surface": { "kind": "jupiter", "colors": ["#C9B49A", "#E8DCC8", "#A6744E", "#7E5236", "#C2683E"], "bump": 0.0, "flow": 1.0 },
+      "atmosphere": { "color": [0.85, 0.78, 0.68], "height": 0.012, "strength": 0.25, "haze": 0.0 },
+      "info": { "rotationText": "9時間56分", "temp": "雲頂 約−110°C", "desc": "太陽系最大の惑星。大赤斑は地球より大きな嵐で、数百年続いています。" }
+    },
+    {
+      "id": "io", "name": "イオ", "en": "Io", "type": "moon", "parent": "jupiter",
+      "radiusKm": 1821.6,
+      "moon": { "model": "galilean", "index": 0, "aKm": 421700, "periodDays": 1.769138 },
+      "rotation": { "tidal": true },
+      "surface": { "kind": "io", "colors": ["#C9B040", "#E8D98A", "#8A5A2A", "#2E241A"], "bump": 0.5 },
+      "info": { "rotationText": "1.77日", "temp": "平均 約−143°C", "desc": "太陽系で最も火山活動が活発な天体。硫黄で黄色く染まっています。" }
+    },
+    {
+      "id": "europa", "name": "エウロパ", "en": "Europa", "type": "moon", "parent": "jupiter",
+      "radiusKm": 1560.8,
+      "moon": { "model": "galilean", "index": 1, "aKm": 671034, "periodDays": 3.551181 },
+      "rotation": { "tidal": true },
+      "surface": { "kind": "europa", "colors": ["#D8D0C2", "#EFEAE0", "#9A6A48", "#B89A80"], "bump": 0.3 },
+      "info": { "rotationText": "3.55日", "temp": "平均 約−160°C", "desc": "氷の地殻の下に液体の海があると考えられている衛星です。" }
+    },
+    {
+      "id": "ganymede", "name": "ガニメデ", "en": "Ganymede", "type": "moon", "parent": "jupiter",
+      "radiusKm": 2634.1,
+      "moon": { "model": "galilean", "index": 2, "aKm": 1070412, "periodDays": 7.154553 },
+      "rotation": { "tidal": true },
+      "surface": { "kind": "ganymede", "colors": ["#5E554C", "#A39A8E", "#C9C2B8", "#7A6E62"], "craters": 0.6, "bump": 0.8 },
+      "info": { "rotationText": "7.15日", "temp": "平均 約−163°C", "desc": "太陽系最大の衛星で、水星より大きい天体です。" }
+    },
+    {
+      "id": "callisto", "name": "カリスト", "en": "Callisto", "type": "moon", "parent": "jupiter",
+      "radiusKm": 2410.3,
+      "moon": { "model": "galilean", "index": 3, "aKm": 1882709, "periodDays": 16.689018 },
+      "rotation": { "tidal": true },
+      "surface": { "kind": "cratered", "colors": ["#2E2924", "#5A5148", "#9C9286", "#40382F"], "maria": 0.1, "craters": 1.4, "bump": 1.0 },
+      "info": { "rotationText": "16.7日", "temp": "平均 約−139°C", "desc": "表面がクレーターで埋め尽くされた、太陽系でも古い地表の一つです。" }
+    },
+    {
+      "id": "saturn", "name": "土星", "en": "Saturn", "type": "planet", "key": "6", "parent": "sun",
+      "radiusKm": 58232, "oblateness": 0.09796,
+      "orbit": {
+        "table1": { "values": [9.53667594, 0.05386179, 2.48599187, 49.95424423, 92.59887831, 113.66242448], "rates": [-0.00125060, -0.00050991, 0.00193609, 1222.49362201, -0.41897216, -0.28867794] },
+        "table2": { "values": [9.54149883, 0.05550825, 2.49424102, 50.07571329, 92.86136063, 113.63998702], "rates": [-0.00003065, -0.00032044, 0.00451969, 1222.11494724, 0.54179478, -0.25015002], "extra": [0.00025899, -0.13434469, 0.87320147, 38.35125000] }
+      },
+      "rotation": { "ra0": 40.589, "raRate": -0.036, "dec0": 83.537, "decRate": -0.004, "W0": 38.90, "Wdot": 810.7939024 },
+      "surface": { "kind": "saturn", "colors": ["#C8B48C", "#E3D3AE", "#A88E64", "#8C7A5C", "#D8C49A"], "bump": 0.0, "flow": 0.6 },
+      "atmosphere": { "color": [0.9, 0.82, 0.62], "height": 0.012, "strength": 0.25, "haze": 0.0 },
+      "rings": { "innerKm": 74658, "outerKm": 140220, "color": [0.86, 0.78, 0.64] },
+      "info": { "rotationText": "10時間34分", "temp": "雲頂 約−140°C", "desc": "主に氷の粒でできた環を持つ惑星。環の厚さは数十mほどしかありません。" }
+    },
+    {
+      "id": "titan", "name": "タイタン", "en": "Titan", "type": "moon", "parent": "saturn",
+      "radiusKm": 2574.7,
+      "moon": { "model": "circular", "aKm": 1221870, "periodDays": 15.945421, "L0": 120 },
+      "rotation": { "tidal": true },
+      "surface": { "kind": "titan", "colors": ["#B5781E", "#D9A050", "#8A5A1A", "#6E4A1A"], "bump": 0.0 },
+      "atmosphere": { "color": [1.0, 0.68, 0.3], "height": 0.08, "strength": 1.4, "haze": 0.7 },
+      "info": { "rotationText": "15.9日", "temp": "平均 約−179°C", "desc": "厚い窒素の大気を持つ衛星。メタンの湖や川があります。" }
+    },
+    {
+      "id": "uranus", "name": "天王星", "en": "Uranus", "type": "planet", "key": "7", "parent": "sun",
+      "radiusKm": 25362, "oblateness": 0.0229,
+      "orbit": {
+        "table1": { "values": [19.18916464, 0.04725744, 0.77263783, 313.23810451, 170.95427630, 74.01692503], "rates": [-0.00196176, -0.00004397, -0.00242939, 428.48202785, 0.40805281, 0.04240589] },
+        "table2": { "values": [19.18797948, 0.04685740, 0.77298127, 314.20276625, 172.43404441, 73.96250215], "rates": [-0.00020455, -0.00001550, -0.00180155, 428.49512595, 0.09266985, 0.05739699], "extra": [0.00058331, -0.97731848, 0.17689245, 7.67025000] }
+      },
+      "rotation": { "ra0": 257.311, "dec0": -15.175, "W0": 203.81, "Wdot": -501.1600928 },
+      "surface": { "kind": "icegiant", "colors": ["#9FD3D8", "#C3E8EA", "#7DB8C2", "#B0DCE0"], "bump": 0.0, "flow": 0.15 },
+      "atmosphere": { "color": [0.6, 0.9, 0.95], "height": 0.02, "strength": 0.5, "haze": 0.3 },
+      "info": { "rotationText": "17時間14分(横倒しで逆向き)", "temp": "雲頂 約−195°C", "desc": "自転軸が約98度傾き、横倒しのまま公転する惑星です。" }
+    },
+    {
+      "id": "neptune", "name": "海王星", "en": "Neptune", "type": "planet", "key": "8", "parent": "sun",
+      "radiusKm": 24622, "oblateness": 0.0171,
+      "orbit": {
+        "table1": { "values": [30.06992276, 0.00859048, 1.77004347, -55.12002969, 44.96476227, 131.78422574], "rates": [0.00026291, 0.00005105, 0.00035372, 218.45945325, -0.32241464, -0.00508664] },
+        "table2": { "values": [30.06952752, 0.00895439, 1.77005520, 304.22289287, 46.68158724, 131.78635853], "rates": [0.00006447, 0.00000818, 0.00022400, 218.46515314, 0.01009938, -0.00606302], "extra": [-0.00041348, 0.68346318, -0.10162547, 7.67025000] }
+      },
+      "rotation": { "ra0": 299.36, "dec0": 43.46, "W0": 249.978, "Wdot": 541.1397757 },
+      "surface": { "kind": "icegiant", "colors": ["#2F55B8", "#4C7AD8", "#1E3A8A", "#7FA4EA"], "bump": 0.0, "flow": 0.5, "spot": 1.0 },
+      "atmosphere": { "color": [0.35, 0.55, 1.0], "height": 0.02, "strength": 0.5, "haze": 0.2 },
+      "info": { "rotationText": "16時間6分", "temp": "雲頂 約−200°C", "desc": "太陽系で最も外側の惑星。秒速600mを超える強風が吹いています。" }
+    },
+    {
+      "id": "pluto", "name": "冥王星", "en": "Pluto", "type": "dwarf", "key": "9", "parent": "sun",
+      "radiusKm": 1188.3,
+      "orbit": {
+        "table1": { "values": [39.48211675, 0.24882730, 17.14001206, 238.92903833, 224.06891629, 110.30393684], "rates": [-0.00031596, 0.00005170, 0.00004818, 145.20780515, -0.04062942, -0.01183482] }
+      },
+      "rotation": { "ra0": 132.993, "dec0": -6.163, "W0": 302.695, "Wdot": 56.3625225 },
+      "surface": { "kind": "pluto", "colors": ["#8A6A50", "#C9A888", "#E8DCCC", "#5A3E2E"], "craters": 0.3, "bump": 0.6 },
+      "info": { "rotationText": "6.39日(逆向き)", "temp": "平均 約−230°C", "desc": "2006年に準惑星に分類された天体。ハート形の窒素の氷原があります。" }
+    }
+  ],
+  "belts": [
+    { "id": "asteroids", "name": "小惑星帯", "count": 5000, "aRange": [2.1, 3.3], "gaps": [2.5, 2.82, 2.95], "eMax": 0.18, "iSigma": 7, "color": [0.62, 0.56, 0.5], "size": 1.0 },
+    { "id": "kuiper", "name": "カイパーベルト", "count": 3500, "aRange": [39, 48], "gaps": [], "eMax": 0.12, "iSigma": 9, "color": [0.55, 0.6, 0.7], "size": 0.9 }
+  ]
+}

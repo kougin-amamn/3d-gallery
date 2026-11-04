@@ -1,0 +1,136 @@
+{
+  "base": {
+    "shallow": "#7FD8E0",
+    "deep": "#0B3A53",
+    "sand": "#D9C8A0",
+    "plant": "#3F8F4A",
+    "accent": "#FF7A45"
+  },
+  "plants": {
+    "ribbon": {
+      "base": "#1F4A2A",
+      "tip": "#6FAE5A",
+      "tints": [
+        "#3F8F4A",
+        "#4E9A44",
+        "#5C8F3A",
+        "#3A8458"
+      ]
+    },
+    "sword": {
+      "base": "#24492A",
+      "tip": "#7CB860",
+      "tints": [
+        "#4A9548",
+        "#3F8F4A",
+        "#5AA055"
+      ]
+    },
+    "carpet": {
+      "base": "#2E5A2C",
+      "tip": "#8CC468",
+      "tints": [
+        "#5FA050",
+        "#6EAA4E",
+        "#4F9446"
+      ]
+    }
+  },
+  "default": "morning",
+  "transitionSeconds": 4,
+  "timeOfDay": {
+    "morning": {
+      "label": "朝",
+      "sunColor": "#FFE4BE",
+      "sunIntensity": 2.6,
+      "sunDir": [
+        0.38,
+        -1,
+        0.22
+      ],
+      "ambient": 0.55,
+      "shallow": "#80D2CC",
+      "deep": "#0D3A4E",
+      "absorb": [
+        0.075,
+        0.036,
+        0.03
+      ],
+      "fogDensity": 1.0,
+      "rays": 1.0,
+      "caustics": 1.25,
+      "exposure": 1.05,
+      "bloom": 0.32,
+      "snowGlow": 1.0,
+      "grade": {
+        "contrast": 1.12,
+        "saturation": 1.04,
+        "warmth": 0.025,
+        "vignette": 0.42,
+        "grain": 0.03
+      }
+    },
+    "day": {
+      "label": "昼",
+      "sunColor": "#FFF6E6",
+      "sunIntensity": 3.1,
+      "sunDir": [
+        0.14,
+        -1,
+        0.1
+      ],
+      "ambient": 0.65,
+      "shallow": "#7FD8E0",
+      "deep": "#0B3A53",
+      "absorb": [
+        0.07,
+        0.033,
+        0.027
+      ],
+      "fogDensity": 0.95,
+      "rays": 1.15,
+      "caustics": 1.6,
+      "exposure": 1.1,
+      "bloom": 0.28,
+      "snowGlow": 1.0,
+      "grade": {
+        "contrast": 1.12,
+        "saturation": 1.06,
+        "warmth": 0.0,
+        "vignette": 0.38,
+        "grain": 0.025
+      }
+    },
+    "night": {
+      "label": "夜",
+      "sunColor": "#93B6FF",
+      "sunIntensity": 1.35,
+      "sunDir": [
+        -0.25,
+        -1,
+        0.15
+      ],
+      "ambient": 0.4,
+      "shallow": "#2A6F8E",
+      "deep": "#041A2C",
+      "absorb": [
+        0.11,
+        0.05,
+        0.038
+      ],
+      "fogDensity": 0.95,
+      "rays": 0.45,
+      "caustics": 0.6,
+      "exposure": 1.15,
+      "bloom": 0.6,
+      "snowGlow": 1.8,
+      "grade": {
+        "contrast": 1.08,
+        "saturation": 0.95,
+        "warmth": -0.04,
+        "vignette": 0.55,
+        "grain": 0.04
+      }
+    }
+  }
+}
