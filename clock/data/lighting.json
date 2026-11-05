@@ -1,0 +1,15 @@
+{
+  "note": "スタジオの光。softboxes は金属に写り込む光の板(位置 mm、大きさ、明るさ)。写真の環境画像は使わない",
+  "background": "#0B0908",
+  "exposure": 1.0,
+  "environmentIntensity": 1.0,
+  "softboxes": [
+    { "pos": [-10, 60, 14], "size": [40, 22], "color": "#FFF4E6", "intensity": 1.6 },
+    { "pos": [-55, 26, 8], "size": [8, 60], "color": "#F2F6FF", "intensity": 9.0 },
+    { "pos": [52, 22, -18], "size": [8, 50], "color": "#FFF1E0", "intensity": 6.5 },
+    { "pos": [0, 8, 60], "size": [60, 6], "color": "#FFE7CC", "intensity": 2.0 },
+    { "pos": [0, 20, -60], "size": [50, 5], "color": "#DCE8FF", "intensity": 4.5 }
+  ],
+  "key": { "dir": [-0.45, 1.0, 0.35], "color": "#FFF6EA", "intensity": 2.4, "shadowSize": 2048 },
+  "fill": { "dir": [0.6, 0.7, -0.5], "color": "#DCE6FF", "intensity": 0.35 }
+}

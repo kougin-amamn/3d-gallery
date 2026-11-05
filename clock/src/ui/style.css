@@ -1,0 +1,74 @@
+/* 機械式時計: 暗い作業台に置いたムーブメント。UI は細い金の線と小さな文字だけ */
+:root {
+  --bench: #0B0908;
+  --ink: #EDE6DC;
+  --quiet: #8C8276;
+  --gold: #E6B464;
+  --panel: rgba(18, 14, 11, 0.58);
+  --line: rgba(237, 230, 220, 0.14);
+  --font-ja: "IBM Plex Sans JP", "Hiragino Sans", "Noto Sans JP", system-ui, sans-serif;
+  --font-serif: "Cormorant Garamond", "Times New Roman", serif;
+  --font-num: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bench); color: var(--ink); font-family: var(--font-ja); font-size: 13px; -webkit-tap-highlight-color: transparent; }
+#view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; cursor: grab; }
+#view:active { cursor: grabbing; }
+button { font: inherit; color: inherit; }
+[hidden] { display: none !important; }
+:focus-visible { outline: 1.5px solid var(--gold); outline-offset: 2px; }
+
+.loading { position: fixed; inset: 0; display: grid; place-items: center; background: var(--bench); z-index: 30; transition: opacity 1.2s ease; }
+.loading.done { opacity: 0; pointer-events: none; }
+.loading-inner { text-align: center; }
+.spinner { width: 34px; height: 34px; margin: 0 auto; border: 1px solid var(--line); border-top-color: var(--gold); border-radius: 50%; animation: spin 1.1s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text { margin: 20px 0 0; font-size: 12px; letter-spacing: 0.2em; color: var(--quiet); }
+.error { position: fixed; inset: 0; display: grid; place-content: center; text-align: center; z-index: 40; background: var(--bench); padding: 24px; }
+.error-title { font-size: 15px; margin: 0 0 8px; }
+.error-message { color: var(--quiet); margin: 0; max-width: 40em; }
+
+.top { position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;
+  padding: calc(18px + env(safe-area-inset-top, 0px)) max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px)); pointer-events: none; z-index: 5; }
+.brand { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; pointer-events: auto; }
+.back { align-self: center; display: grid; place-items: center; width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 50%; color: var(--ink); text-decoration: none; transition: border-color .2s; }
+.back:hover { border-color: var(--gold); }
+.back svg { width: 16px; height: 16px; }
+.brand-en { font-family: var(--font-serif); font-style: italic; font-size: 22px; letter-spacing: 0.02em; color: var(--gold); }
+.brand-ja { font-size: 12px; letter-spacing: 0.2em; color: var(--quiet); }
+.badge { font-size: 10px; letter-spacing: 0.14em; padding: 2px 8px; border: 1px solid rgba(230, 180, 100, 0.4); border-radius: 999px; color: var(--gold); }
+.readout { text-align: right; pointer-events: auto; }
+.time { display: block; font-family: var(--font-num); font-size: 22px; letter-spacing: 0.06em; font-variant-numeric: tabular-nums; }
+.spec { font-size: 11px; color: var(--quiet); letter-spacing: 0.08em; }
+
+.info { position: fixed; left: max(20px, env(safe-area-inset-left, 0px)); bottom: calc(84px + env(safe-area-inset-bottom, 0px)); width: min(330px, calc(100vw - 40px));
+  padding: 14px 16px; background: var(--panel); border: 1px solid var(--line); border-radius: 10px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 4; }
+.info h2 { margin: 0 0 6px; font-size: 14px; font-weight: 500; letter-spacing: 0.08em; }
+.info p { margin: 0; line-height: 1.75; color: #CFC6BA; font-size: 12.5px; }
+
+.bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; justify-content: center; gap: 14px; flex-wrap: wrap;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) calc(20px + env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px)); z-index: 5; }
+.seg { display: flex; background: var(--panel); border: 1px solid var(--line); border-radius: 999px; padding: 3px; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); }
+.seg button { border: 0; background: transparent; padding: 7px 16px; border-radius: 999px; cursor: pointer; font-size: 12.5px; letter-spacing: 0.06em; color: var(--quiet); transition: color .2s, background .2s; }
+.seg button:hover { color: var(--ink); }
+.seg button[aria-pressed="true"] { background: rgba(230, 180, 100, 0.16); color: var(--gold); }
+
+.labels { position: fixed; inset: 0; pointer-events: none; z-index: 3; opacity: 0; transition: opacity .6s ease; }
+.labels.show { opacity: 1; }
+.labels.show .label { pointer-events: auto; }
+.label { position: absolute; left: 0; top: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 1px; padding: 0 0 0 14px; border: 0; background: none; cursor: pointer; white-space: nowrap; will-change: transform; }
+.label::before { content: ""; position: absolute; left: -3px; top: 6px; width: 6px; height: 6px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 3px rgba(230, 180, 100, 0.18); }
+.label .ja { font-size: 12px; letter-spacing: 0.08em; color: var(--ink); text-shadow: 0 1px 6px rgba(0,0,0,.9); }
+.label .en { font-family: var(--font-serif); font-style: italic; font-size: 12px; color: var(--quiet); text-shadow: 0 1px 6px rgba(0,0,0,.9); }
+.label:hover .ja, .label.on .ja { color: var(--gold); }
+
+@media (max-width: 640px) {
+  .brand-en { font-size: 18px; }
+  .time { font-size: 17px; }
+  .spec { display: none; }
+  .info { bottom: calc(118px + env(safe-area-inset-bottom, 0px)); padding: 11px 13px; }
+  .info p { font-size: 12px; }
+  .seg button { padding: 7px 10px; }
+  .label .en { display: none; }
+}

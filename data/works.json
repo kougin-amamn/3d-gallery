@@ -6,6 +6,22 @@
   },
   "works": [
     {
+      "id": "clock",
+      "title": "機械式時計",
+      "en": "Mechanical Movement",
+      "href": "./clock/",
+      "thumb": "./assets/thumbs/clock.jpg",
+      "accent": "#E6B464",
+      "description": "機械式時計のムーブメントを裏側から。てんぷが1秒に8回振れ、ゼンマイの力が歯車を伝わって時を刻みます。今の時刻に合わせて動き、部品を分解して役目を読むこともできます。",
+      "features": [
+        "毎時28,800振動の脱進機",
+        "香箱から4番車までの輪列",
+        "分解表示と部品の説明"
+      ],
+      "controls": "ドラッグで回転・ホイールで拡大・部品をクリックで説明・Eキーで分解",
+      "version": "v0.1"
+    },
+    {
       "id": "solar-system",
       "title": "太陽系ビューア",
       "en": "Solar System Viewer",

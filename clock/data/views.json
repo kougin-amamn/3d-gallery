@@ -1,0 +1,137 @@
+{
+  "note": "視点。target と camera は組み立て座標(mm、+Y が12時、z は地板からの高さ)",
+  "default": "escapement",
+  "views": [
+    {
+      "id": "escapement",
+      "label": "脱進機",
+      "target": [
+        4.4,
+        -4.6,
+        0.8
+      ],
+      "camera": [
+        6.0,
+        -11.0,
+        13.5
+      ],
+      "title": "ガンギ車とアンクル",
+      "text": "てんぷが1往復するたびに、アンクルが左右に振れてガンギ車を半歯ずつ逃がします。1秒に8回。あの「チクタク」はここで鳴っています。"
+    },
+    {
+      "id": "balance",
+      "label": "てんぷ",
+      "target": [
+        8.0,
+        -0.7,
+        1.4
+      ],
+      "camera": [
+        3.0,
+        -12.5,
+        11.5
+      ],
+      "title": "てんぷとひげゼンマイ",
+      "text": "金色の輪が 270° ずつ行き来し、髪の毛より細いゼンマイが呼吸するように伸び縮みします。この往復の正確さが、時計の正確さそのものです。"
+    },
+    {
+      "id": "winding",
+      "label": "巻き上げ",
+      "target": [
+        -3.6,
+        6.0,
+        2.6
+      ],
+      "camera": [
+        -14.0,
+        -7.5,
+        14.0
+      ],
+      "title": "香箱と巻き上げの歯車",
+      "text": "リューズを巻くと丸穴車から角穴車へ回転が伝わり、香箱の中のゼンマイが締まります。放射状に磨かれた筋目が、視点を回すと光の帯になって流れます。"
+    },
+    {
+      "id": "overview",
+      "label": "全体",
+      "target": [
+        0.5,
+        -0.5,
+        0.0
+      ],
+      "camera": [
+        5.0,
+        -30.0,
+        32.0
+      ],
+      "title": "ムーブメント",
+      "text": "ゼンマイの力は香箱から2番車、3番車、4番車へと伝わり、ガンギ車とてんぷが1/8秒ずつ刻んで解き放ちます。受けの縞模様(コート・ド・ジュネーブ)は、光の向きで表情が変わります。"
+    },
+    {
+      "id": "exploded",
+      "label": "分解",
+      "hidden": true,
+      "target": [
+        0.5,
+        -0.5,
+        7.5
+      ],
+      "camera": [
+        20.0,
+        -44.0,
+        25.0
+      ],
+      "title": "分解表示",
+      "text": "部品を下から順に積み上げて見せています。名札かそれぞれの部品を押すと、その役目が読めます。"
+    }
+  ],
+  "speeds": [
+    {
+      "id": "1",
+      "label": "実速",
+      "value": 1
+    },
+    {
+      "id": "4",
+      "label": "1/4",
+      "value": 0.25
+    },
+    {
+      "id": "16",
+      "label": "1/16",
+      "value": 0.0625
+    }
+  ],
+  "quality": {
+    "default": "auto",
+    "auto": {
+      "desktop": "high",
+      "mobile": "medium",
+      "warmupSeconds": 3,
+      "windowSeconds": 2,
+      "downgradeBelowFps": 40
+    },
+    "tiers": {
+      "high": {
+        "pixelRatio": 2,
+        "shadows": true,
+        "dof": true,
+        "bloom": true,
+        "transmission": true
+      },
+      "medium": {
+        "pixelRatio": 1.5,
+        "shadows": true,
+        "dof": false,
+        "bloom": true,
+        "transmission": false
+      },
+      "low": {
+        "pixelRatio": 1,
+        "shadows": false,
+        "dof": false,
+        "bloom": false,
+        "transmission": false
+      }
+    }
+  }
+}

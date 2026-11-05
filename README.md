@@ -14,6 +14,7 @@ data/
   works.json          作品の一覧(タイトル・説明・リンク・サムネイル)
 solar-system/         太陽系ビューア(詳しくは solar-system/README.md)
 aquarium/             静かな水槽(詳しくは aquarium/README.md)
+clock/                機械式時計(詳しくは clock/README.md)
 ```
 
 各作品のページ左上(水槽は操作バーの左端)に、一覧へ戻るリンクがあります。
