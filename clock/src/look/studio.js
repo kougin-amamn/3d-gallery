@@ -33,11 +33,11 @@ export function createStudio(renderer, scene, cfg) {
 
   // 影を落とす主光源と、弱い補助光
   const key = new THREE.DirectionalLight(cfg.key.color, cfg.key.intensity);
-  key.position.set(...cfg.key.dir).normalize().multiplyScalar(60);
+  key.position.set(...cfg.key.dir).normalize().multiplyScalar(160);
   key.castShadow = true;
   key.shadow.mapSize.set(cfg.key.shadowSize, cfg.key.shadowSize);
   const sc = key.shadow.camera;
-  sc.left = -20; sc.right = 20; sc.top = 20; sc.bottom = -20; sc.near = 10; sc.far = 120;
+  sc.left = -62; sc.right = 62; sc.top = 62; sc.bottom = -62; sc.near = 60; sc.far = 280;
   key.shadow.bias = -0.0002;
   key.shadow.normalBias = 0.02;
   key.shadow.radius = 3;

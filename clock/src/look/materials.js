@@ -27,6 +27,8 @@ export function createMaterials(cfg) {
   const cache = {};
   return {
     tex,
+    /** materials.json の項目からそのまま作る(extra で上書き) */
+    make: (k, extra) => base(k, extra),
     /** 歯車の面: 中心 (0,0)、半径 R の円形筋目 */
     gold(R) {
       const k = `gold:${R.toFixed(2)}`;

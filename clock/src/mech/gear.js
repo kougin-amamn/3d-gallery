@@ -212,11 +212,17 @@ export function bridgeShape(circles, links = [], k = 0.9, step = 0.035) {
   const f = (x, y) => prims.reduce((acc, p) => smin(acc, p(x, y)), 1e9);
   let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
   for (const [x, y, r] of circles) { x0 = Math.min(x0, x - r); y0 = Math.min(y0, y - r); x1 = Math.max(x1, x + r); y1 = Math.max(y1, y + r); }
-  x0 -= 0.5; y0 -= 0.5; x1 += 0.5; y1 += 0.5;
+  return contourShape(f, [x0 - 0.5, y0 - 0.5, x1 + 0.5, y1 + 0.5], step, false);
+}
+
+/**
+ * 距離場 f(x, y)(内側が負)の0等高線を、マーチングスクエアで Shape にする。
+ * holes が true なら、外形の内側にできた輪を穴として加える(ブレゲ針の輪など)。
+ */
+export function contourShape(f, [x0, y0, x1, y1], step = 0.035, holes = true) {
   const nx = Math.ceil((x1 - x0) / step) + 1, ny = Math.ceil((y1 - y0) / step) + 1;
   const v = new Float32Array(nx * ny);
   for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) v[j * nx + i] = f(x0 + i * step, y0 + j * step);
-  // マーチングスクエア: 辺の上の0点を求めて線分をつなぐ
   const key = (i, j, e) => `${i},${j},${e}`; // e: 0=下辺(水平) 1=左辺(垂直)
   const pt = (i, j, e) => {
     if (e === 0) { const a = v[j * nx + i], b = v[j * nx + i + 1]; return [x0 + (i + a / (a - b)) * step, y0 + j * step]; }
@@ -230,7 +236,6 @@ export function bridgeShape(circles, links = [], k = 0.9, step = 0.035) {
       const idx = (c0 ? 1 : 0) | (c1 ? 2 : 0) | (c2 ? 4 : 0) | (c3 ? 8 : 0);
       if (idx === 0 || idx === 15) continue;
       const B = key(i, j, 0), R = key(i + 1, j, 1), T = key(i, j + 1, 0), L = key(i, j, 1);
-      // 内側を左に見る向き(反時計回り)で辺をつなぐ
       switch (idx) {
         case 1: link(L, B); break; case 2: link(B, R); break; case 3: link(L, R); break;
         case 4: link(R, T); break; case 5: link(L, T); link(R, B); break; case 6: link(B, T); break;
@@ -241,18 +246,19 @@ export function bridgeShape(circles, links = [], k = 0.9, step = 0.035) {
     }
   }
   const seen = new Set();
-  let best = [];
+  const loops = [];
   for (const start of next.keys()) {
     if (seen.has(start)) continue;
     const loop = [];
     let cur = start;
     while (cur && !seen.has(cur)) { seen.add(cur); loop.push(cur); cur = next.get(cur); }
-    if (loop.length > best.length) best = loop;
+    if (loop.length > 8) loops.push(loop);
   }
-  const pts = best.map((s) => { const [i, j, e] = s.split(',').map(Number); return new THREE.Vector2(...pt(i, j, e)); });
-  // 間引き(なめらかさは保ったまま点の数を減らす)
-  const out = pts.filter((_, i) => i % 2 === 0);
-  return new THREE.Shape(out);
+  loops.sort((a, b) => b.length - a.length);
+  const toPts = (loop) => loop.map((s) => { const [i, j, e] = s.split(',').map(Number); return new THREE.Vector2(...pt(i, j, e)); }).filter((_, i) => i % 2 === 0);
+  const shape = new THREE.Shape(toPts(loops[0]));
+  if (holes) for (const l of loops.slice(1)) shape.holes.push(new THREE.Path(toPts(l)));
+  return shape;
 }
 
 /** 角穴車のようなノコギリ歯の輪郭(時計回りに巻き上げる向き) */

@@ -1,0 +1,104 @@
+{
+  "note": "腕時計の外装。単位 mm。z は組み立て座標(裏側が +)。文字盤まわりは文字盤側から見た座標(x が3時、y が12時、h が文字盤からの高さ)",
+  "pivotZ": 0.2,
+  "restDrop": 4.15,
+  "case": {
+    "bore": 15.6,
+    "front": -2.95,
+    "back": 3.35,
+    "flankRadius": 19.4,
+    "flankBulge": 0.9,
+    "lugs": {
+      "innerX": 10.1,
+      "thickness": 2.0,
+      "springBarY": 22.6
+    },
+    "crown": {
+      "x": -20.0,
+      "z": 0.0
+    }
+  },
+  "dial": {
+    "radius": 15.35,
+    "h": 1.55,
+    "thickness": 0.4,
+    "seconds": {
+      "pos": [
+        0,
+        -7.592
+      ],
+      "radius": 3.55,
+      "recess": 0.17
+    },
+    "moon": {
+      "center": [
+        0,
+        6.3
+      ],
+      "path": 3.4,
+      "moonRadius": 1.5,
+      "diskRadius": 5.0,
+      "h": 1.28
+    },
+    "numeralsRadius": 12.55,
+    "texts": [
+      {
+        "text": "MÉCANIQUE",
+        "y": 3.4,
+        "size": 0.78,
+        "spacing": 0.32
+      },
+      {
+        "text": "28 800 A/h",
+        "y": -2.55,
+        "size": 0.62,
+        "spacing": 0.18
+      }
+    ]
+  },
+  "hands": {
+    "hour": {
+      "length": 8.4,
+      "pomme": 5.7,
+      "pommeR": 1.05,
+      "hub": 0.85,
+      "width": 0.42,
+      "h": 2.15
+    },
+    "minute": {
+      "length": 13.0,
+      "pomme": 9.6,
+      "pommeR": 0.82,
+      "hub": 0.7,
+      "width": 0.32,
+      "h": 2.38
+    },
+    "seconds": {
+      "length": 3.1,
+      "tail": 0.9,
+      "width": 0.12,
+      "hub": 0.32,
+      "h": 2.02
+    }
+  },
+  "strap": {
+    "width": 20,
+    "thickness": 1.35,
+    "long": {
+      "length": 112,
+      "holes": [
+        62,
+        69,
+        76,
+        83,
+        90
+      ]
+    },
+    "short": {
+      "length": 76
+    },
+    "color": "#5B341F",
+    "thread": "#E9DDC4"
+  },
+  "synodic": 29.530589
+}

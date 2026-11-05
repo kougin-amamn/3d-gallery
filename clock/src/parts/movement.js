@@ -405,7 +405,7 @@ export function buildMovement(cfg, M) {
   // カメラの目標などに使う、組み立て座標 → ワールド座標
   const world = (x, y, z = 0) => new THREE.Vector3(x, z, -y);
 
-  return { root, update, world, bridges, setExplode, explodeOffset, layers: { ...LAYER, ...BRIDGE_LAYER }, points: { E, P, B, F, C, T, BR } };
+  return { root, frame: mv, update, world, bridges, setExplode, explodeOffset, layers: { ...LAYER, ...BRIDGE_LAYER }, points: { E, P, B, F, C, T, BR } };
 }
 
 /** アルキメデスらせんのリボン。各頂点に「内端からの割合 u」を持たせ、θ·(1−u) だけ回す */

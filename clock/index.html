@@ -40,9 +40,9 @@
       <a class="back" href="../" title="作品一覧へ戻る" aria-label="作品一覧へ戻る">
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4.5L7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
       </a>
-      <span class="brand-en">Mechanical Movement</span>
+      <span class="brand-en">Mechanical Watch</span>
       <span class="brand-ja">機械式時計</span>
-      <span class="badge">v0.1</span>
+      <span class="badge">v0.2</span>
     </div>
     <div class="readout" aria-live="off">
       <span class="time" id="time">--:--:--</span>
@@ -58,6 +58,7 @@
   </aside>
 
   <nav class="bar" aria-label="操作">
+    <div class="seg" id="sides" role="group" aria-label="表と裏"></div>
     <div class="seg" id="views" role="group" aria-label="視点"></div>
     <div class="seg"><button type="button" id="explode" aria-pressed="false" title="分解表示(E)">分解</button></div>
     <div class="seg" id="speeds" role="group" aria-label="速さ"></div>

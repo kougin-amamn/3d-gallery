@@ -1,12 +1,104 @@
 {
   "note": "色は sRGB。roughness は 0(鏡面)〜1(つや消し)。anisotropy は筋目に沿って光が伸びる強さ",
-  "rhodium": { "label": "ロジウムめっき(地板・受け)", "color": "#D6D8DB", "metalness": 1, "roughness": 0.3, "anisotropy": 0.85 },
-  "gold": { "label": "金めっき(歯車)", "color": "#E6B464", "metalness": 1, "roughness": 0.24, "anisotropy": 0.8 },
-  "steel": { "label": "磨いた鋼(かな・軸・アンクル)", "color": "#C9CDD3", "metalness": 1, "roughness": 0.1 },
-  "steelSatin": { "label": "サテン仕上げの鋼(ガンギ車)", "color": "#BFC4CB", "metalness": 1, "roughness": 0.2, "anisotropy": 0.6 },
-  "blued": { "label": "焼き入れの青(ネジ)", "color": "#203A8C", "metalness": 1, "roughness": 0.14, "iridescence": 0.7, "iridescenceIOR": 1.8, "iridescenceThickness": [280, 420] },
-  "ruby": { "label": "ルビー(穴石・爪石)", "color": "#D01C3A", "attenuationColor": "#7A0018", "transmission": 0.75, "roughness": 0.06, "ior": 1.77, "thickness": 0.25 },
-  "hairspring": { "label": "ひげゼンマイ", "color": "#B4C0D2", "metalness": 1, "roughness": 0.32 },
-  "balanceGold": { "label": "てんぷ(金色の合金)", "color": "#D9A85A", "metalness": 1, "roughness": 0.18 },
-  "velvet": { "label": "背景のベルベット", "color": "#140F0D", "roughness": 0.95, "sheen": 1.0, "sheenColor": "#4A3426", "sheenRoughness": 0.45 }
+  "rhodium": {
+    "label": "ロジウムめっき(地板・受け)",
+    "color": "#D6D8DB",
+    "metalness": 1,
+    "roughness": 0.3,
+    "anisotropy": 0.85
+  },
+  "gold": {
+    "label": "金めっき(歯車)",
+    "color": "#E6B464",
+    "metalness": 1,
+    "roughness": 0.24,
+    "anisotropy": 0.8
+  },
+  "steel": {
+    "label": "磨いた鋼(かな・軸・アンクル)",
+    "color": "#C9CDD3",
+    "metalness": 1,
+    "roughness": 0.1
+  },
+  "steelSatin": {
+    "label": "サテン仕上げの鋼(ガンギ車)",
+    "color": "#BFC4CB",
+    "metalness": 1,
+    "roughness": 0.2,
+    "anisotropy": 0.6
+  },
+  "blued": {
+    "label": "焼き入れの青(ネジ)",
+    "color": "#203A8C",
+    "metalness": 1,
+    "roughness": 0.14,
+    "iridescence": 0.7,
+    "iridescenceIOR": 1.8,
+    "iridescenceThickness": [
+      280,
+      420
+    ]
+  },
+  "ruby": {
+    "label": "ルビー(穴石・爪石)",
+    "color": "#D01C3A",
+    "attenuationColor": "#7A0018",
+    "transmission": 0.75,
+    "roughness": 0.06,
+    "ior": 1.77,
+    "thickness": 0.25
+  },
+  "hairspring": {
+    "label": "ひげゼンマイ",
+    "color": "#B4C0D2",
+    "metalness": 1,
+    "roughness": 0.32
+  },
+  "balanceGold": {
+    "label": "てんぷ(金色の合金)",
+    "color": "#D9A85A",
+    "metalness": 1,
+    "roughness": 0.18
+  },
+  "velvet": {
+    "label": "背景のベルベット",
+    "color": "#140F0D",
+    "roughness": 0.95,
+    "sheen": 1.0,
+    "sheenColor": "#4A3426",
+    "sheenRoughness": 0.45
+  },
+  "caseSteel": {
+    "label": "ケース(鏡面のステンレス)",
+    "color": "#DADDE1",
+    "metalness": 1,
+    "roughness": 0.07
+  },
+  "caseBrushed": {
+    "label": "ケース(ヘアラインのステンレス)",
+    "color": "#CDD1D6",
+    "metalness": 1,
+    "roughness": 0.2,
+    "anisotropy": 0.9
+  },
+  "dialSilver": {
+    "label": "文字盤(銀のオパーリン)",
+    "color": "#FFFFFF",
+    "metalness": 0.45,
+    "roughness": 0.46
+  },
+  "moonDisk": {
+    "label": "ムーンフェイズの夜空",
+    "color": "#FFFFFF",
+    "metalness": 0.2,
+    "roughness": 0.3
+  },
+  "leather": {
+    "label": "革ベルト",
+    "color": "#FFFFFF",
+    "roughness": 0.6,
+    "sheen": 0.6,
+    "sheenColor": "#8A5634",
+    "sheenRoughness": 0.5
+  }
 }
