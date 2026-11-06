@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { involuteOutline, pinionOutline, escapeOutline, wheelShape, ringShape, capsuleShape, bridgeShape, ratchetOutline } from '../mech/gear.js';
+import { involuteOutline, pinionOutline, escapeOutline, wheelShape, ringShape, capsuleShape, bridgeShape, contourShape, ratchetOutline } from '../mech/gear.js';
 import { meshPhase } from '../mech/train.js';
 
 // ムーブメント(香箱・輪列・脱進機・てんぷ)を組み立てる。
@@ -50,6 +50,29 @@ function mesh(geo, mat, { shadow = true } = {}) {
   return m;
 }
 
+/** 点から折れ線までの距離 */
+function polyDist(pts, x, y) {
+  if (pts.length === 1) return Math.hypot(x - pts[0][0], y - pts[0][1]);
+  let d = Infinity;
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [ax, ay] = pts[i], [bx, by] = pts[i + 1];
+    const dx = bx - ax, dy = by - ay;
+    const t = Math.max(0, Math.min(1, ((x - ax) * dx + (y - ay) * dy) / (dx * dx + dy * dy)));
+    d = Math.min(d, Math.hypot(x - ax - dx * t, y - ay - dy * t));
+  }
+  return d;
+}
+/** 円と腕をなめらかにつないだ形の距離場(内側が負) */
+function sdfUnion(circles, links, k) {
+  const smin = (a, b) => { const h = Math.max(0, Math.min(1, 0.5 + (0.5 * (b - a)) / k)); return b * (1 - h) + a * h - k * h * (1 - h); };
+  return (x, y) => {
+    let d = 1e9;
+    for (const [cx, cy, r] of circles) d = smin(d, Math.hypot(x - cx, y - cy) - r);
+    for (const [i, j, w] of links) d = smin(d, polyDist([circles[i], circles[j]], x, y) - w / 2);
+    return d;
+  };
+}
+
 export function buildMovement(cfg, M) {
   const root = new THREE.Group();
   root.name = 'movement';
@@ -59,7 +82,7 @@ export function buildMovement(cfg, M) {
 
   // 分解表示: 部品ごとに「何段目か」を持たせ、段 × 間隔だけ上に持ち上げる
   const LAYER = { third: 1.0, fourth: 1.3, center: 1.6, barrel: 2.0, escape: 2.3, pallet: 2.7, balance: 3.4, winding: 5.4 };
-  const BRIDGE_LAYER = { trainBridge: 4.2, escapeBridge: 4.2, palletBridge: 4.4, barrelBridge: 4.8, balanceCock: 6.2 };
+  const BRIDGE_LAYER = { trainBridge: 4.2, fourthBridge: 4.2, barrelBridge: 4.4, escapeBridge: 5.2, palletBridge: 5.2, balanceCock: 6.2 };
   const SPACING = 2.3;
   const placedParts = [];
   const put = (layer, part, ...objs) => {
@@ -111,6 +134,20 @@ export function buildMovement(cfg, M) {
     return g;
   };
 
+  // 金の座金(シャトン): 穴石を囲む金の輪を、2本の小さな青ネジで留める
+  const chaton = (x, y, z) => {
+    const g = new THREE.Group();
+    const ring = mesh(lathe([[0.95, 0], [0.95, 0.07], [0.88, 0.12], [0.62, 0.12], [0.56, 0.06]], 64), M.gold(0.95));
+    g.add(ring);
+    for (const a of [0.6, 0.6 + Math.PI]) {
+      const s = screw(1.18 * Math.cos(a), 1.18 * Math.sin(a), 0);
+      s.scale.set(0.42, 0.42, 0.6);
+      g.add(s);
+    }
+    g.position.set(x, y, z);
+    return g;
+  };
+
   // 青ネジ: 頭の切り込みは2つの半円を離して置いて作る
   const screwHead = (() => {
     const R = 0.42, slot = 0.075;
@@ -137,16 +174,41 @@ export function buildMovement(cfg, M) {
 
   // ---------- 受け(ブリッジ) ----------
   const bridges = {};
+  // 大きな受け: 窓を除いた円を、それぞれの軸(seeds)に近い場所ごとに分け、境目に細い溝を入れる
+  const pt = cfg.partition;
+  const openSdf = sdfUnion(pt.opening.circles, pt.opening.links, 0.8);
+  const partBridges = cfg.bridges.filter((b) => b.type === 'partition');
+  const seedDist = (b, x, y) => polyDist(b.seeds, x, y);
+  const regionSdf = (b) => (x, y) => {
+    const own = seedDist(b, x, y);
+    let other = Infinity;
+    for (const o of partBridges) if (o !== b) other = Math.min(other, seedDist(o, x, y));
+    return Math.max(Math.hypot(x, y) - pt.radius, -openSdf(x, y), (own - other) / 2 + pt.gap / 2);
+  };
+  const ratchetAt = cfg.train.find((w) => w.id === 'barrel').pos;
+  const screwAvoid = [...cfg.bridges.flatMap((b) => [...(b.jewels || []), ...(b.screws || [])]), ...partBridges.flatMap((b) => b.seeds)];
+  for (const b of partBridges) {
+    b.z = 0; b.thickness = pt.top;
+    const f = regionSdf(b);
+    b.shape = contourShape(f, [-pt.radius - 0.3, -pt.radius - 0.3, pt.radius + 0.3, pt.radius + 0.3], 0.04, true);
+    // ネジ: 候補のうち、受けの内側で縁に近く、ほかの部品から離れた場所を3つまで
+    b.screws = cfg.partitionScrewCandidates
+      .filter(([x, y]) => f(x, y) < -0.85 && f(x, y) > -2.6 && screwAvoid.every(([ax, ay]) => Math.hypot(ax - x, ay - y) > 2.2) && Math.hypot(x - ratchetAt[0], y - ratchetAt[1]) > 3.8)
+      .slice(0, 3);
+    b.foot = false;
+  }
   for (const b of cfg.bridges) {
-    const shape = bridgeShape(b.circles, b.links || []);
-    const body = mesh(extrude(shape, b.thickness, 0.07, 32), [M.bridge(1.15, b.stripeDeg ?? 32), M.edge]);
+    const shape = b.shape || bridgeShape(b.circles, b.links || []);
+    const body = mesh(extrude(shape, b.thickness, 0.08, 32), [M.bridge(2.3, b.stripeDeg ?? 32), M.edge]);
     body.position.z = b.z;
     const L = BRIDGE_LAYER[b.id] ?? 4.2;
     put(L, b.id, body);
     const top = b.z + b.thickness;
     for (const [x, y] of b.jewels) put(L, b.id, jewel(x, y, top + 0.001));
+    for (const [x, y] of b.chatons || []) put(L, b.id, chaton(x, y, top));
     for (const [x, y] of b.screws) {
       put(L, b.id, screw(x, y, top));
+      if (b.foot === false) continue;
       // ネジの下は地板まで届く脚(受けの端の円と同じ大きさで、段差なく下りる)
       const c = b.circles.reduce((best, q) => (Math.hypot(q[0] - x, q[1] - y) < Math.hypot(best[0] - x, best[1] - y) ? q : best));
       const foot = mesh(cylinder(c[2] - 0.02, 0, b.z + 0.02, 48), M.edge);
@@ -184,7 +246,7 @@ export function buildMovement(cfg, M) {
     pinion: { teeth: byId.center.pinion, module: byId.center.pinionModule, z0: byId.center.pinionZ[0], z1: byId.center.pinionZ[1] } });
   const third = wheel({ ...byId.third, arborTop: trainTop,
     pinion: { teeth: byId.third.pinion, module: m, z0: byId.third.pinionZ[0], z1: byId.third.pinionZ[1] } });
-  const fourth = wheel({ ...fourthCfg, arborTop: cfg.bridges.find((b) => b.id === 'escapeBridge').z,
+  const fourth = wheel({ ...fourthCfg, arborTop: trainTop,
     pinion: { teeth: fourthCfg.pinion, module: m, z0: 0.02, z1: 0.24 } });
   put(LAYER.center, 'center', center);
   put(LAYER.third, 'third', third);
@@ -273,6 +335,7 @@ export function buildMovement(cfg, M) {
   // ---------- アンクル ----------
   const swing = cfg.pallet.swingDeg * DEG;
   const pallet = new THREE.Group();
+  const palletTop = cfg.bridges.find((b) => b.id === 'palletBridge').z;
   pallet.position.set(P[0], P[1], 0);
   const zP = 0.76, tP = cfg.pallet.thickness;
   {
@@ -320,7 +383,7 @@ export function buildMovement(cfg, M) {
       pallet.add(horn);
     }
     const hub = mesh(cylinder(0.3, zP - 0.04, zP + tP + 0.04, 32), M.steel);
-    const arbor = mesh(cylinder(0.055, 0, 1.05, 16), M.steel);
+    const arbor = mesh(cylinder(0.055, 0, palletTop, 16), M.steel);
     pallet.add(hub, arbor);
 
     // ドテピン(アンクルの振れを止める2本のピン)

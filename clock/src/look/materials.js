@@ -61,7 +61,7 @@ export function createMaterials(cfg) {
       if (!cache[k]) {
         const rot = (deg * Math.PI) / 180;
         const o = { repeat: 1 / (stripeMM * 4), rotation: rot };
-        cache[k] = base('rhodium', { anisotropyMap: placed(tex.geneva.aniso, o), roughnessMap: placed(tex.geneva.rough, o), anisotropyRotation: rot });
+        cache[k] = base('rhodium', { anisotropyMap: placed(tex.geneva.aniso, o), roughnessMap: placed(tex.geneva.rough, o), anisotropyRotation: rot, anisotropy: 0.62, roughness: 0.34 });
       }
       return cache[k];
     },

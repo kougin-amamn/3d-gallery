@@ -69,13 +69,13 @@ export function genevaStripes(size = 512, bands = 4) {
       const v = across - band - 0.5;                     // 縞の中の位置 -0.5〜0.5
       const along = (y + 0.5) / size * bands;            // 縞に沿う方向
       // 砥石の円弧: 縞の中央では縞を横切る向き、端に行くほど傾く
-      const dir = [1.0, v * 1.3];
+      const dir = [1.0, v * 0.9];
       void along;
       const l = Math.hypot(dir[0], dir[1]);
       aniso[i] = enc(dir[0] / l); aniso[i + 1] = enc(dir[1] / l); aniso[i + 2] = 255; aniso[i + 3] = 255;
       // 縞の境目はわずかに粗く、境目が線として見える
       const edge = Math.pow(Math.abs(v) * 2, 8);
-      const g = 0.7 + 0.3 * edge;
+      const g = 0.78 + 0.22 * edge;
       rough[i] = rough[i + 1] = rough[i + 2] = Math.round(g * 255); rough[i + 3] = 255;
     }
   }
