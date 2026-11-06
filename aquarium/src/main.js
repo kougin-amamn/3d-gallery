@@ -10,6 +10,7 @@ import { createPlants } from './world/plants.js';
 import { createSurface, createRays, createBubbles, createSnow } from './world/water.js';
 import { createFish } from './life/fish.js';
 import { createFood } from './life/food.js';
+import { createShrimp } from './life/shrimp.js';
 import { createComposer } from './post/composer.js';
 import { createHud } from './ui/hud.js';
 
@@ -85,6 +86,7 @@ async function boot() {
   };
   const fish = createFish(scene3d, speciesData, world, uniforms, shaders);
   const food = createFood(scene3d, sceneCfg, uniforms, shaders, sandHeight);
+  const shrimp = createShrimp(scene3d, sceneCfg, rocks, uniforms, shaders);
 
   // ---- ポストプロセス ----
   const post = createComposer(renderer, scene3d, view.camera, shaders);
@@ -164,7 +166,7 @@ async function boot() {
   // 自動テスト・スクリーンショット用
   let frozen = false;
   window.__aquarium = {
-    renderer, scene: scene3d, camera: view.camera, lighting, fish, food, quality, feed: feedAt,
+    renderer, scene: scene3d, camera: view.camera, lighting, fish, food, shrimp, quality, feed: feedAt,
     // 確認用: 各種を1匹ずつ横に並べてカメラを寄せる
     lineup() {
       frozen = true;
@@ -206,6 +208,7 @@ async function boot() {
       view.update(dt);
       food.update(dt, t);
       fish.update(dt, t, food);
+      shrimp.update(dt, t);
     } else {
       for (const m of fish.meshes) { for (const a of m.school.fish) a.phase += dt * 6; m.school.writeMatrices(m.mesh, m.swim); }
     }

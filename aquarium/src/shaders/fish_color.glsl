@@ -45,12 +45,37 @@
     body = mix(body, uAccent, spot * 0.85);
     // 腹びれ付近の暖色
     body = mix(body, uAccent2, smoothstep(-0.15, -0.4, yn) * 0.35);
+  } else if (uPattern == 6) {
+    // ハニードワーフグラミー: 橙金色の体、喉から腹は濃い紺、背びれの縁は黄
+    body = mix(uBelly, uBack, smoothstep(-0.35, 0.3, yn));
+    float throat = smoothstep(0.05, -0.2, yn) * smoothstep(-0.25, 0.2, lp.x) * smoothstep(0.45, 0.3, lp.x);
+    body = mix(body, uAccent, throat * 0.85);
+    body = mix(body, uAccent2, smoothstep(0.3, 0.48, yn) * 0.7);
+  } else if (uPattern == 7) {
+    // コイ・エンゼル: 白地に橙の大きな斑と、黒い細かな斑
+    vec2 q = lp.xy * vec2(5.5, 5.5 / max(uBodyH, 0.1) * 0.5);
+    float n1 = fishNoise(q + 3.1) * 0.65 + fishNoise(q * 2.3 + 7.7) * 0.35;
+    float orange = smoothstep(0.5, 0.58, n1) * smoothstep(-0.45, -0.1, yn + 0.25 * lp.x);
+    float head = smoothstep(0.15, 0.32, lp.x) * smoothstep(-0.05, 0.25, yn);
+    body = mix(body, uAccent2, max(orange, head) * 0.95);
+    float n2 = fishNoise(lp.xy * vec2(16.0, 13.0) + 1.3);
+    float black = smoothstep(0.66, 0.72, n2) * (1.0 - head);
+    body = mix(body, uAccent, black * 0.9);
+  } else if (uPattern == 8) {
+    // カーディナルテトラ: 青く光る側線と、頭から尾まで続く赤い腹
+    float line = smoothstep(0.08, 0.015, abs(yn - 0.07))
+               * smoothstep(0.44, 0.32, lp.x) * smoothstep(-0.36, -0.22, lp.x);
+    float red = smoothstep(0.03, -0.12, yn) * smoothstep(0.42, 0.3, lp.x) * smoothstep(-0.38, -0.28, lp.x);
+    body = mix(body, uAccent2, red * 0.95);
+    body = mix(body, uAccent, line);
+    fishGlow = line;
   }
 
   // ヒレ: 体色に寄せつつ明るく
   vec3 fin = mix(body, uFinColor, 0.7);
   body = mix(body, fin, vFin);
   if (uPattern == 2) body = mix(body, uAccent, vFin * smoothstep(0.04, 0.0, abs(lp.x + 0.12)) * 0.6);
+  if (uPattern == 7) body = mix(body, uAccent2, vFin * smoothstep(0.1, 0.4, yn) * 0.55);
 
   // 目
   float side = step(0.3, abs(vFishNz)) * (1.0 - vFin);

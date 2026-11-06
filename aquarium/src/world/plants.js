@@ -7,11 +7,56 @@ import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js';
 const BLADE = {
   ribbon: { width: 0.13, segs: 10, outline: (t) => 1 - Math.pow(t, 8), cup: 0.02, height: [3.2, 7.8], flex: [0.55, 1.1], arch: [0.2, 0.9], twist: [-1.2, 1.2] },
   sword:  { width: 0.36, segs: 8, outline: (t) => Math.sin(Math.PI * (0.12 + 0.88 * t)) * (1 - t * 0.2), cup: 0.05, height: [1.4, 2.6], flex: [0.12, 0.25], arch: [0.4, 1.1], twist: [-0.5, 0.5] },
+  // 赤い有茎草(ロタラなど): 細い茎に小さな葉が段々に付き、先端ほど赤い
+  stem:   { width: 0.03, segs: 20, outline: () => 1, cup: 0.0, height: [2.0, 3.6], flex: [0.1, 0.22], arch: [0.05, 0.25], twist: [-0.3, 0.3], stem: true },
   carpet: { width: 0.06, segs: 3, outline: (t) => 1 - t * 0.85, cup: 0.0, height: [0.16, 0.36], flex: [0.08, 0.16], arch: [0.02, 0.08], twist: [-0.6, 0.6], tuft: 7 },
 };
 
+function stemGeometry(b, baseColor, tipColor) {
+  const positions = [], colors = [], indices = [];
+  const c = new THREE.Color();
+  const quad = (pts, col) => {
+    const i0 = positions.length / 3;
+    for (const p of pts) { positions.push(...p); colors.push(col.r, col.g, col.b); }
+    indices.push(i0, i0 + 1, i0 + 2, i0, i0 + 2, i0 + 3);
+  };
+  // 茎(十字に組んだ細い板)
+  for (const [ax, az] of [[1, 0], [0, 1]]) {
+    for (let i = 0; i < b.segs; i++) {
+      const t0 = i / b.segs, t1 = (i + 1) / b.segs, w = b.width / 2;
+      c.lerpColors(baseColor, tipColor, Math.pow(t0, 1.6)).multiplyScalar(0.8);
+      quad([[-w * ax, t0, -w * az], [w * ax, t0, w * az], [w * ax, t1, w * az], [-w * ax, t1, -w * az]], c);
+    }
+  }
+  // 葉: 節ごとに4枚、少しずつ向きを回す
+  const nodes = 22;
+  for (let n = 1; n < nodes; n++) {
+    const t = n / nodes;
+    c.lerpColors(baseColor, tipColor, Math.pow(t, 1.3));
+    const len = 0.13 * (1 - t * 0.45), w = 0.028;
+    for (let k = 0; k < 4; k++) {
+      const a = (k / 4) * Math.PI * 2 + n * 0.7;
+      const dx = Math.cos(a), dz = Math.sin(a), px = -dz, pz = dx;
+      const up = 0.035 + t * 0.02;
+      quad([
+        [px * w * 0.3, t, pz * w * 0.3],
+        [dx * len * 0.5 + px * w, t + up * 0.5, dz * len * 0.5 + pz * w],
+        [dx * len, t + up, dz * len],
+        [dx * len * 0.5 - px * w, t + up * 0.5, dz * len * 0.5 - pz * w],
+      ], c);
+    }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+  geo.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+  geo.setIndex(indices);
+  geo.computeVertexNormals();
+  return geo;
+}
+
 function bladeGeometry(kind, baseColor, tipColor) {
   const b = BLADE[kind];
+  if (b.stem) return stemGeometry(b, baseColor, tipColor);
   const positions = [], colors = [], uvs = [], indices = [];
   const c = new THREE.Color();
   for (let i = 0; i <= b.segs; i++) {
@@ -53,7 +98,7 @@ function bladeGeometry(kind, baseColor, tipColor) {
 
 export function createPlants(scene3d, cfg, palettes, uniforms, shaders, sandHeight, obstacles) {
   const currentDir = new THREE.Vector2(...cfg.currentDir).normalize();
-  const groupsByType = { ribbon: [], sword: [], carpet: [] };
+  const groupsByType = { ribbon: [], sword: [], stem: [], carpet: [] };
   for (const g of cfg.plants) groupsByType[g.type]?.push(g);
 
   const meshes = [];

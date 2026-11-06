@@ -3,7 +3,7 @@ import { buildFishGeometry } from './fishGeometry.js';
 import { School } from './boids.js';
 import { patchUnderwater } from '../core/patch.js';
 
-const PATTERNS = { plain: 0, neon: 1, bars: 2, spots: 3, wedge: 4, gourami: 5 };
+const PATTERNS = { plain: 0, neon: 1, bars: 2, spots: 3, wedge: 4, gourami: 5, honey: 6, koi: 7, cardinal: 8 };
 
 export function createFish(scene3d, speciesData, world, uniforms, shaders) {
   const schools = [];

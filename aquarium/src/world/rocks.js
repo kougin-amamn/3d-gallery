@@ -66,8 +66,8 @@ function makeWood(def) {
   const pos = geo.attributes.position;
   const nrm = geo.attributes.normal;
   const colors = new Float32Array(pos.count * 3);
-  const bark = new THREE.Color('#3E2F22');
-  const light = new THREE.Color('#7A6650');
+  const bark = new THREE.Color('#4A3220');
+  const light = new THREE.Color('#946A44');
   const c = new THREE.Color();
   const v = new THREE.Vector3(), nv = new THREE.Vector3();
   const o = def.seed * 7.1;

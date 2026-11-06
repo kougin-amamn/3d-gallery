@@ -2,7 +2,7 @@
   "base": {
     "shallow": "#7FD8E0",
     "deep": "#0B3A53",
-    "sand": "#D9C8A0",
+    "sand": "#E0C8A0",
     "plant": "#3F8F4A",
     "accent": "#FF7A45"
   },
@@ -34,6 +34,16 @@
         "#6EAA4E",
         "#4F9446"
       ]
+    },
+    "stem": {
+      "base": "#56702A",
+      "tip": "#F2502A",
+      "tints": [
+        "#E0603A",
+        "#EA7030",
+        "#D04A30",
+        "#F08638"
+      ]
     }
   },
   "default": "morning",
@@ -52,8 +62,8 @@
       "shallow": "#80D2CC",
       "deep": "#0D3A4E",
       "absorb": [
-        0.075,
-        0.036,
+        0.048,
+        0.034,
         0.03
       ],
       "fogDensity": 1.0,
@@ -83,8 +93,8 @@
       "shallow": "#7FD8E0",
       "deep": "#0B3A53",
       "absorb": [
-        0.07,
-        0.033,
+        0.044,
+        0.031,
         0.027
       ],
       "fogDensity": 0.95,
@@ -114,8 +124,8 @@
       "shallow": "#2A6F8E",
       "deep": "#041A2C",
       "absorb": [
-        0.11,
-        0.05,
+        0.08,
+        0.048,
         0.038
       ],
       "fogDensity": 0.95,
