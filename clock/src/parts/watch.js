@@ -134,27 +134,33 @@ export function buildDial(W, M) {
   const g = new THREE.Group();
   g.name = 'dial';
   g.rotation.y = Math.PI;
-  const moon = D.moon;
-  const [mx, my] = moon.center;
+  const dn = D.dayNight;
+  const sec = D.seconds;
+  const sm = sec.moon;
 
-  // 月の窓: 外の弧と内の弧のあいだ、左右の「丘」を除いた形
-  const winOuter = moon.path + moon.moonRadius + 0.18;
-  const winInner = moon.path - moon.moonRadius - 0.12;
-  const humpR = moon.moonRadius + 0.1;
-  const hump = (s) => [mx + s * moon.path * Math.cos(Math.PI / 6), my + moon.path * Math.sin(Math.PI / 6)];
-  const hL = hump(-1), hR = hump(1);
-  const sector = Math.PI / 7.2;
-  const windowSdf = (x, y) => {
-    const dx = x - mx, dy = y - my, r = Math.hypot(dx, dy);
-    const dSector = -(dy * Math.cos(sector) - Math.abs(dx) * Math.sin(sector));
-    return Math.max(r - winOuter, winInner - r, humpR - Math.hypot(x - hL[0], y - hL[1]), humpR - Math.hypot(x - hR[0], y - hR[1]), dSector);
+  // 円盤をのぞく窓: 中心 c のまわりの弧の帯。dir の向きに開き、humps なら両端に「丘」を付ける
+  const windowShape = ({ center: [cx, cy], path, bodyR, dir, humps, sector }) => {
+    const outer = path + bodyR + 0.15, inner = path - bodyR - 0.12, humpR = bodyR + 0.08;
+    const ca = Math.cos(dir - Math.PI / 2), sa = Math.sin(dir - Math.PI / 2);
+    const local = (x, y) => { const dx = x - cx, dy = y - cy; return [dx * ca + dy * sa, -dx * sa + dy * ca]; };
+    const hx = path * Math.cos(Math.PI / 6), hy = path * Math.sin(Math.PI / 6);
+    const f = (x, y) => {
+      const [lx, ly] = local(x, y);
+      const r = Math.hypot(lx, ly);
+      const dSector = -(ly * Math.cos(sector) - Math.abs(lx) * Math.sin(sector));
+      let d = Math.max(r - outer, inner - r, dSector);
+      if (humps) d = Math.max(d, humpR - Math.hypot(lx - hx, ly - hy), humpR - Math.hypot(lx + hx, ly - hy));
+      return d;
+    };
+    const R = outer + 0.4;
+    return contourShape(f, [cx - R, cy - R, cx + R, cy + R], 0.025, false);
   };
-  const win = contourShape(windowSdf, [mx - winOuter - 0.3, my - 0.5, mx + winOuter + 0.3, my + winOuter + 0.3], 0.03, false);
+  const dnWin = windowShape({ center: dn.center, path: dn.path, bodyR: dn.bodyRadius, dir: Math.PI / 2, humps: false, sector: dn.sectorDeg * Math.PI / 180 });
+  const smWin = windowShape({ center: [0, 0], path: sm.path, bodyR: sm.moonRadius, dir: -Math.PI / 2, humps: true, sector: Math.PI / 7.2 });
 
   // 文字盤
-  const sec = D.seconds;
   const dialShape = circleShape(D.radius);
-  dialShape.holes.push(new THREE.Path(win.getPoints().slice().reverse()));
+  dialShape.holes.push(new THREE.Path(dnWin.getPoints().slice().reverse()));
   dialShape.holes.push(circlePath(sec.radius, sec.pos[0], sec.pos[1]));
   const print = dialTexture(W);
   const uvT = { repeat: 1 / (2 * D.radius), offset: 0.5 };
@@ -166,7 +172,10 @@ export function buildDial(W, M) {
   dial.position.z = D.h;
   g.add(dial);
 
-  // 小秒針の文字盤(一段低く、同心円の筋目)
+  // 小秒針の文字盤(一段低く、同心円の筋目)。下側に月の窓
+  const subTop = D.h + D.thickness - sec.recess;
+  const subdial = new THREE.Group();
+  subdial.position.set(sec.pos[0], sec.pos[1], 0);
   {
     const t = subdialTexture(W);
     const R = sec.radius + 0.05;
@@ -174,28 +183,48 @@ export function buildDial(W, M) {
     const aniso = M.tex.circular.aniso.clone();
     aniso.repeat.set(1 / (2 * R), 1 / (2 * R)); aniso.offset.set(0.5, 0.5); aniso.needsUpdate = true;
     const mat = M.make('dialSilver', { map: t, metalnessMap: t, anisotropy: 0.8, anisotropyMap: aniso, roughness: 0.34 });
-    const sd = mesh(extrude(circleShape(R), 0.1, 0.02, 64), mat);
-    sd.position.set(sec.pos[0], sec.pos[1], D.h + D.thickness - sec.recess - 0.1);
-    sd.geometry.translate(0, 0, 0);
-    // 位置ごと動かすので、形は原点中心
-    g.add(sd);
+    const shape = circleShape(R);
+    shape.holes.push(new THREE.Path(smWin.getPoints().slice().reverse()));
+    const sd = mesh(extrude(shape, 0.1, 0.02, 64), [mat, dialEdge]);
+    sd.position.z = subTop - 0.1;
+    subdial.add(sd);
   }
+  g.add(subdial);
 
-  // ムーンフェイズの円盤(夜空)と2つの金の月
+  // ムーンフェイズ(小秒針の中): 夜空の円盤に2つの金の月
   const moonGroup = new THREE.Group();
-  moonGroup.position.set(mx, my, moon.h);
+  moonGroup.position.set(sec.pos[0], sec.pos[1], subTop - 0.1 - 0.13);
   {
-    const t = moonTexture(moon.diskRadius);
-    t.repeat.set(1 / (2 * moon.diskRadius), 1 / (2 * moon.diskRadius)); t.offset.set(0.5, 0.5);
-    const disk = mesh(extrude(circleShape(moon.diskRadius), 0.08, 0.01, 96), M.make('moonDisk', { map: t }), { shadow: false });
-    moonGroup.add(disk);
+    const t = moonTexture(sm.diskRadius);
+    t.repeat.set(1 / (2 * sm.diskRadius), 1 / (2 * sm.diskRadius)); t.offset.set(0.5, 0.5);
+    moonGroup.add(mesh(extrude(circleShape(sm.diskRadius), 0.05, 0.008, 96), M.make('moonDisk', { map: t }), { shadow: false }));
     for (const a of [0, Math.PI]) {
-      const m = mesh(lathe([[moon.moonRadius, 0], [moon.moonRadius, 0.04], [moon.moonRadius * 0.7, 0.085], [0.001, 0.1]], 64), M.gold(moon.moonRadius), { shadow: false });
-      m.position.set(moon.path * Math.cos(a), moon.path * Math.sin(a), 0.08);
+      const r = sm.moonRadius;
+      const m = mesh(lathe([[r, 0], [r, 0.025], [r * 0.7, 0.05], [0.001, 0.06]], 48), M.gold(r), { shadow: false });
+      m.position.set(sm.path * Math.cos(a), sm.path * Math.sin(a), 0.05);
       moonGroup.add(m);
     }
   }
   g.add(moonGroup);
+
+  // デイナイト(12時): 昼の空に金の太陽、夜空に銀の三日月。1日に1回転
+  const dayGroup = new THREE.Group();
+  dayGroup.position.set(dn.center[0], dn.center[1], dn.h);
+  {
+    const t = dayNightTexture(dn.diskRadius, dn.path, dn.bodyRadius);
+    t.repeat.set(1 / (2 * dn.diskRadius), 1 / (2 * dn.diskRadius)); t.offset.set(0.5, 0.5);
+    dayGroup.add(mesh(extrude(circleShape(dn.diskRadius), 0.08, 0.01, 96), M.make('moonDisk', { map: t }), { shadow: false }));
+    const r = dn.bodyRadius * 0.62;
+    const sun = mesh(lathe([[r, 0], [r, 0.03], [r * 0.75, 0.075], [0.001, 0.09]], 64), M.gold(r), { shadow: false });
+    sun.position.set(dn.path, 0, 0.08);
+    const crescent = contourShape((x, y) => Math.max(Math.hypot(x, y) - dn.bodyRadius * 0.78, dn.bodyRadius * 0.66 - Math.hypot(x - dn.bodyRadius * 0.42, y + dn.bodyRadius * 0.12)),
+      [-dn.bodyRadius, -dn.bodyRadius, dn.bodyRadius, dn.bodyRadius], 0.012, false);
+    const moonC = mesh(extrude(crescent, 0.07, 0.02, 16), M.make('caseSteel', { roughness: 0.16 }), { shadow: false });
+    moonC.position.set(-dn.path, 0, 0.08);
+    moonC.rotation.z = Math.PI / 2 + 0.25;
+    dayGroup.add(sun, moonC);
+  }
+  g.add(dayGroup);
 
   // 針(ブレゲ針: 根元の円、細い竿、先の近くの中抜きの輪、細い先端)
   const H = W.hands;
@@ -242,21 +271,24 @@ export function buildDial(W, M) {
   secPivot.add(secHand);
   g.add(secPivot);
 
-  for (const o of [dial]) o.userData.part = 'dial';
-  g.children[1].userData.part = 'smallSeconds';
+  dial.userData.part = 'dial';
+  subdial.userData.part = 'smallSeconds';
   moonGroup.userData.part = 'moonphase';
+  dayGroup.userData.part = 'dayNight';
   hourPivot.userData.part = minutePivot.userData.part = 'hands';
   secPivot.userData.part = 'smallSeconds';
 
   return {
     group: g,
-    /** 針は時刻から、月は月齢(日)から */
-    update(state, moonAge) {
+    /** 針は時刻から、月は月齢(日)から、デイナイトは1日のうちの割合から */
+    update(state, moonAge, dayFrac) {
       hourPivot.rotation.z = -state.hour;
       minutePivot.rotation.z = -state.center;
       secPivot.rotation.z = -state.fourth;
-      // 新月で左の丘の下、満月で窓の真ん中、右へ抜けて欠ける(右側から光る=北半球の見え方)。2つの月で1朔望月に半回転
-      moonGroup.rotation.z = Math.PI * (1 - moonAge / W.synodic);
+      // 月: 小秒針の下側の窓。新月で左の丘の下、満月で窓の真ん中、右へ抜けて欠ける。2つの月で1朔望月に半回転
+      moonGroup.rotation.z = Math.PI + Math.PI * (moonAge / W.synodic);
+      // 太陽: 朝6時に左から昇り、正午に窓の真ん中、夕方6時に右へ沈む。真夜中は月が真ん中
+      dayGroup.rotation.z = Math.PI / 2 - (dayFrac - 0.5) * TAU;
     },
   };
 }
@@ -338,8 +370,54 @@ function subdialTexture(W) {
   g.beginPath(); g.arc(c, c, 3.35 * k, 0, TAU); g.stroke();
   g.textAlign = 'center'; g.textBaseline = 'middle';
   g.font = `500 ${0.62 * k}px ${SERIF}`;
-  for (const [n, a] of [['60', 0], ['15', 0.25], ['30', 0.5], ['45', 0.75]]) {
+  for (const [n, a] of [['60', 0], ['15', 0.25], ['45', 0.75]]) {
     g.fillText(n, c + Math.sin(a * TAU) * 2.3 * k, c - Math.cos(a * TAU) * 2.3 * k);
+  }
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
+function dayNightTexture(R, path, bodyR) {
+  const S = 1024, k = S / (2 * R);
+  const cv = document.createElement('canvas'); cv.width = cv.height = S;
+  const g = cv.getContext('2d');
+  const img = g.createImageData(S, S), d = img.data;
+  const mix = (a, b, t) => a + (b - a) * t;
+  const night = [12, 26, 69], day = [104, 170, 222], dusk = [232, 140, 76];
+  for (let y = 0; y < S; y++) {
+    for (let x = 0; x < S; x++) {
+      const px = (x + 0.5) / k - R, py = R - (y + 0.5) / k;
+      const a = Math.atan2(py, px);           // 太陽は 0 の向き
+      const c = Math.cos(a);
+      const t = Math.min(1, Math.max(0, (c + 0.25) / 0.6));
+      const col = night.map((n, i) => mix(n, day[i], t * t * (3 - 2 * t)));
+      const dz = Math.exp(-((c - 0.02) ** 2) / 0.012) * 0.75;   // 夕焼けと朝焼けの帯
+      const i = (y * S + x) * 4;
+      d[i] = mix(col[0], dusk[0], dz); d[i + 1] = mix(col[1], dusk[1], dz); d[i + 2] = mix(col[2], dusk[2], dz); d[i + 3] = 255;
+    }
+  }
+  g.putImageData(img, 0, 0);
+  // 夜側の星
+  let seed = 23;
+  const rnd = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  for (let i = 0; i < 160; i++) {
+    const r = Math.sqrt(rnd()) * R, a = Math.PI / 2 + rnd() * Math.PI;
+    if (Math.cos(a) > -0.3) continue;
+    const x = S / 2 + Math.cos(a) * r * k, y = S / 2 - Math.sin(a) * r * k;
+    const s = (0.04 + rnd() * 0.07) * k;
+    g.fillStyle = `rgba(235, 225, 200, ${0.5 + rnd() * 0.5})`;
+    g.beginPath();
+    for (let j = 0; j < 8; j++) { const aa = (j / 8) * TAU, rr = j % 2 ? s * 0.3 : s; g.lineTo(x + Math.cos(aa) * rr, y + Math.sin(aa) * rr); }
+    g.fill();
+  }
+  // 太陽の光条(金の円盤のまわり)
+  const sx = S / 2 + path * k, sy = S / 2;
+  g.strokeStyle = 'rgba(255, 214, 120, 0.95)'; g.lineCap = 'round';
+  for (let j = 0; j < 16; j++) {
+    const aa = (j / 16) * TAU, r0 = bodyR * 0.72 * k, r1 = bodyR * (j % 2 ? 0.95 : 1.08) * k;
+    g.lineWidth = (j % 2 ? 0.05 : 0.08) * k;
+    g.beginPath(); g.moveTo(sx + Math.cos(aa) * r0, sy + Math.sin(aa) * r0); g.lineTo(sx + Math.cos(aa) * r1, sy + Math.sin(aa) * r1); g.stroke();
   }
   const tex = new THREE.CanvasTexture(cv);
   tex.colorSpace = THREE.SRGBColorSpace;

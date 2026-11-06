@@ -28,17 +28,12 @@
         -7.592
       ],
       "radius": 3.55,
-      "recess": 0.17
-    },
-    "moon": {
-      "center": [
-        0,
-        6.3
-      ],
-      "path": 3.4,
-      "moonRadius": 1.5,
-      "diskRadius": 5.0,
-      "h": 1.28
+      "recess": 0.17,
+      "moon": {
+        "path": 1.75,
+        "moonRadius": 0.58,
+        "diskRadius": 2.6
+      }
     },
     "numeralsRadius": 12.55,
     "texts": [
@@ -54,7 +49,18 @@
         "size": 0.62,
         "spacing": 0.18
       }
-    ]
+    ],
+    "dayNight": {
+      "center": [
+        0,
+        6.3
+      ],
+      "path": 3.4,
+      "bodyRadius": 1.35,
+      "diskRadius": 5.0,
+      "h": 1.28,
+      "sectorDeg": 32
+    }
   },
   "hands": {
     "hour": {

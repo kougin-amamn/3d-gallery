@@ -291,7 +291,8 @@ async function main() {
     else if (e.key === 'e' || e.key === 'E') setExploded(explodeTarget === 0);
     else if (e.key === 'f' || e.key === 'F') setView(side === 'front' ? 'caseback' : 'dial');
     else if (e.key === '5') setView('dial');
-    else if (e.key === '6') setView('moon');
+    else if (e.key === '6') setView('daynight');
+    else if (e.key === '7') setView('seconds');
     else if (e.key === ' ') { paused = !paused; e.preventDefault(); }
   });
 
@@ -312,7 +313,7 @@ async function main() {
     state = trainAngles(simT, cfg);
     movement.update(state);
     // 月齢は「時計の中の日時」で: 実際の今 + 時計の時刻のずれ
-    dial.update(state, moonAgeDays(Date.now() + (simT - nowSeconds()) * 1000, W.synodic));
+    dial.update(state, moonAgeDays(Date.now() + (simT - nowSeconds()) * 1000, W.synodic), (((simT % 86400) + 86400) % 86400) / 86400);
     if (flipT !== flipTarget) {
       const step = dt / 1.6;
       flipT = flipTarget > flipT ? Math.min(flipTarget, flipT + step) : Math.max(flipTarget, flipT - step);
