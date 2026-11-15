@@ -11,7 +11,7 @@
     "color": "#BFEBDD"
   },
   "exposure": 0.9,
-  "environmentIntensity": 1.0,
+  "environmentIntensity": 0.7,
   "softboxes": [
     {
       "pos": [
@@ -73,7 +73,7 @@
       0.65
     ],
     "color": "#FFF4E6",
-    "intensity": 2.3,
+    "intensity": 2.7,
     "shadowSize": 2048
   },
   "fill": {
@@ -88,7 +88,7 @@
   "hemi": {
     "sky": "#DDEFFF",
     "ground": "#F6D6C6",
-    "intensity": 0.4
+    "intensity": 0.35
   },
   "camera": {
     "fov": 32,
@@ -119,7 +119,8 @@
     "low": {
       "pixelRatio": 1.25,
       "shadows": true,
-      "bloom": false
+      "bloom": false,
+      "shadowType": "pcf"
     }
   },
   "envRoom": {

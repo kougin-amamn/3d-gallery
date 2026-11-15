@@ -31,17 +31,14 @@
     "spacing": 0.085
   },
   "colors": {
-    "woodLight": "#CF8B4C",
-    "woodDark": "#7A3F1C",
     "woodTint": [
       "#FFFFFF",
-      "#F2DCC4",
-      "#FFE9CF",
-      "#E9CDB0",
-      "#FFF4E4"
+      "#F2E8DE",
+      "#FFF7EE",
+      "#E8DCCF",
+      "#F7ECE0",
+      "#EFE3D8"
     ],
-    "woodInner": "#6E3A1A",
-    "brass": "#E9C27A",
     "velvet": "#A3132D",
     "keyhole": "#1A0E08",
     "lockGem": "#FF2E55",
@@ -53,24 +50,51 @@
       "#8A2BE2",
       "#FF9800"
     ],
-    "goldPolished": "#F6D894"
+    "wood": "#6E4D33",
+    "woodDark": "#3C2616",
+    "woodLight": "#8F6A4A",
+    "iron": "#696C71",
+    "ironSmooth": "#74777C"
   },
   "wood": {
-    "size": 1024,
-    "grainScale": 3.2,
-    "rings": 38,
-    "knots": 5,
-    "normalScale": 0.55,
+    "note": "木目は CanvasTexture で生成。横が板の長手方向。roughness は粗さの範囲(暗い筋ほど 0.8、地は 0.95)",
+    "width": 1024,
+    "height": 512,
+    "seed": 5,
+    "bands": 14,
+    "lines": 240,
+    "knots": 3,
+    "pores": 4200,
     "roughness": [
-      0.55,
-      0.8
-    ]
+      0.8,
+      0.95
+    ],
+    "bumpScale": 0.8,
+    "uvScale": 0.9,
+    "innerShade": 0.5,
+    "gapShade": 0.55,
+    "endShade": 0.62,
+    "streaks": 60
   },
   "metal": {
-    "note": "帯金は古い金(くすみ・槌目)、鋲・錠前・金貨は磨いた金",
-    "aged": 0.75,
-    "polished": 0.15,
-    "normalScale": 0.25
+    "note": "鉄。帯金・角金・取っ手は打ち出しの黒い鉄、鋲・錠前・ちょうつがいは少しなめらかな鉄。edgeWear は角の擦れの明るさ",
+    "metalness": 0.9,
+    "aged": 0.7,
+    "stain": [
+      0.5,
+      0.53,
+      0.56
+    ],
+    "roughness": [
+      0.45,
+      0.72
+    ],
+    "roughnessSmooth": [
+      0.35,
+      0.55
+    ],
+    "normalScale": 0.22,
+    "edgeWear": 1.6
   },
   "treasure": {
     "pileCoins": 260,

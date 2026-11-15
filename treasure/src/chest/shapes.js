@@ -116,9 +116,10 @@ export function roundRect(w, h, r, n = 6) {
 
 /**
  * 箱投影の UV。面の向きで投影面を選び、along 軸を u(木目の流れ)にする。
- * offset で板ごとに木目の位置をずらす。
+ * offset で板ごとに木目の位置をずらし、scaleV で筋の間隔(太さ)を板ごとに変える。
+ * 木口(along 方向を向いた切り口)はほぼ一点に縮め、頂点色で暗くする(paintEnds)。
  */
-export function boxUV(g, { along = 'x', scale = 1, offset = [0, 0] } = {}) {
+export function boxUV(g, { along = 'x', scale = 1, scaleV = scale, offset = [0, 0] } = {}) {
   const pos = g.attributes.position, nor = g.attributes.normal;
   const uv = new Float32Array(pos.count * 2);
   const other = { x: ['y', 'z'], y: ['x', 'z'], z: ['y', 'x'] }[along];
@@ -128,28 +129,43 @@ export function boxUV(g, { along = 'x', scale = 1, offset = [0, 0] } = {}) {
     const ax = Math.abs(n3.x), ay = Math.abs(n3.y), az = Math.abs(n3.z);
     const dom = ax > ay && ax > az ? 'x' : ay > az ? 'y' : 'z';
     let u, v;
-    if (dom === along) { u = v3[other[0]] * 0.7; v = v3[other[1]]; }      // 木口(切り口)
-    else { u = v3[along]; v = dom === other[0] ? v3[other[1]] : v3[other[0]]; }
-    uv[i * 2] = u * scale + offset[0];
-    uv[i * 2 + 1] = v * scale + offset[1];
+    if (dom === along) { u = v3[other[0]] * 0.04; v = v3[other[1]] * 0.04; }
+    else { u = v3[along] * scale; v = (dom === other[0] ? v3[other[1]] : v3[other[0]]) * scaleV; }
+    uv[i * 2] = u + offset[0];
+    uv[i * 2 + 1] = v + offset[1];
   }
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
   return g;
 }
 
 /** 円筒の UV(フタの板): u = x、v = 弧の長さ */
-export function cylUV(g, { cy = 0, cz = 0, scale = 1, offset = [0, 0] } = {}) {
+export function cylUV(g, { cy = 0, cz = 0, scale = 1, scaleV = scale, offset = [0, 0] } = {}) {
   const pos = g.attributes.position, nor = g.attributes.normal;
   const uv = new Float32Array(pos.count * 2);
   for (let i = 0; i < pos.count; i++) {
     const x = pos.getX(i), y = pos.getY(i), z = pos.getZ(i);
     const nx = Math.abs(nor.getX(i));
     const r = Math.hypot(y - cy, z - cz), a = Math.atan2(y - cy, z - cz);
-    if (nx > 0.7) { uv[i * 2] = (z - cz) * scale + offset[0]; uv[i * 2 + 1] = (y - cy) * scale + offset[1]; }
-    else { uv[i * 2] = x * scale + offset[0]; uv[i * 2 + 1] = a * r * scale + offset[1]; }
+    if (nx > 0.7) { uv[i * 2] = (z - cz) * scale + offset[0]; uv[i * 2 + 1] = (y - cy) * scaleV + offset[1]; }
+    else { uv[i * 2] = x * scale + offset[0]; uv[i * 2 + 1] = a * r * scaleV + offset[1]; }
   }
   g.setAttribute('uv', new THREE.BufferAttribute(uv, 2));
   return g;
+}
+
+/**
+ * 金具の角の摩耗: 面取りの部分の頂点色を明るくして、角だけ地金が光るようにする。
+ * axis は押し出しの向き('x' / 'y')。'box' は角の丸い直方体。
+ */
+export function edgePaint(g, axis = 'box', bright = 1.3) {
+  return paint(g, (p, n) => {
+    let edge;
+    if (axis === 'none') edge = false;
+    else if (axis === 'box') edge = Math.max(Math.abs(n.x), Math.abs(n.y), Math.abs(n.z)) < 0.97;
+    else { const a = Math.abs(n[axis]); edge = a > 0.3 && a < 0.92; }
+    const k = edge ? bright : 1;
+    return [k, k, k];
+  });
 }
 
 /** 頂点色をつける。fn(位置, 法線) → [r, g, b] */

@@ -28,7 +28,10 @@ async function main() {
   renderer.toneMapping = THREE.NeutralToneMapping;
   renderer.toneMappingExposure = scn.exposure;
   renderer.shadowMap.enabled = tier.shadows;
-  renderer.shadowMap.type = THREE.VSMShadowMap;
+  renderer.shadowMap.type = tier.shadowType === 'pcf' ? THREE.PCFSoftShadowMap : THREE.VSMShadowMap;
+  // 影は何かが動いたときだけ描き直す(止まっている間は前の影をそのまま使う)
+  renderer.shadowMap.autoUpdate = false;
+  renderer.shadowMap.needsUpdate = true;
 
   const scene = new THREE.Scene();
   const camera = new THREE.PerspectiveCamera(scn.camera.fov, 1, 0.05, 100);
@@ -271,14 +274,24 @@ async function main() {
     composer.render(dt);
     requestAnimationFrame(frame);
   }
+  const lastPose = { lid: 0, hop: 0, sy: 1, lockY: 0, lockZ: 0 };
   function step(dt) {
     st.time += dt;
     updateHop(dt);
     updateLid(dt);
     updateLock(dt);
     if (st.burstAt > 0 && st.time >= st.burstAt) { st.burstAt = -1; launch(tr, cfg, dims); }
-    stepTreasure(tr, cfg, dims, dt, padR);
+    const flying = stepTreasure(tr, cfg, dims, dt, padR);
     updateGlow(dt);
+    // 見えないものは描かない: 箱の中身はフタが開いている間だけ、飛ぶ金貨は出ている間だけ
+    tr.pile.visible = lid.rotation.x < -0.004;
+    tr.flyCoins.visible = flying;
+    for (const g of tr.flyGems) g.visible = flying;
+    // 影の描き直しが要るか
+    const moved = Math.abs(lid.rotation.x - lastPose.lid) > 1e-5 || Math.abs(hop.position.y - lastPose.hop) > 1e-5 ||
+      Math.abs(root.scale.y - lastPose.sy) > 1e-5 || Math.abs(lock.position.y - lastPose.lockY) > 1e-5 || Math.abs(lock.position.z - lastPose.lockZ) > 1e-5;
+    if (moved || tr.moving) renderer.shadowMap.needsUpdate = true;
+    lastPose.lid = lid.rotation.x; lastPose.hop = hop.position.y; lastPose.sy = root.scale.y; lastPose.lockY = lock.position.y; lastPose.lockZ = lock.position.z;
   }
 
   setHint();
@@ -286,9 +299,26 @@ async function main() {
   $('#loading').hidden = true;
   requestAnimationFrame(frame);
 
+  // ページを離れるときに、作ったテクスチャ・素材・形を GPU から解放する
+  function dispose() {
+    const seen = new Set();
+    scene.traverse((o) => {
+      if (o.geometry && !seen.has(o.geometry)) { seen.add(o.geometry); o.geometry.dispose(); }
+      for (const m of [].concat(o.material || [])) {
+        if (seen.has(m)) continue;
+        seen.add(m);
+        for (const v of Object.values(m)) if (v && v.isTexture && !seen.has(v)) { seen.add(v); v.dispose(); }
+        m.dispose();
+      }
+    });
+    metalEnv.dispose(); studio.envTexture.dispose();
+    composer.dispose(); renderer.dispose();
+  }
+  addEventListener('pagehide', dispose, { once: true });
+
   // 確認用の入口
   window.__chest = {
-    ready: true, st, open, close, toggle, camera, controls, renderer, scene, built, tr,
+    ready: true, st, open, close, toggle, camera, controls, renderer, scene, built, tr, dispose,
     /** 時間を進める(スクリーンショット用) */
     advance(sec, fps = 60) { const n = Math.round(sec * fps); for (let i = 0; i < n; i++) step(1 / fps); },
     pause(v = true) { st.paused = v; },

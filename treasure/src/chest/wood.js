@@ -27,80 +27,107 @@ function fbm(x, y, px, py, seed, oct = 4) {
   return s;
 }
 
-const srgb = (hex) => new THREE.Color(hex);
-
 /**
- * 木目。u(横)が木の繊維の向き。色、凹凸(法線)、粗さの3枚を返す。
- * 年輪の線を、ゆがみのノイズで波打たせ、ところどころに節(ふし)を入れる。
+ * 木目(CanvasTexture)。横(u)が板の長手方向。
+ * - color: 色。板ごとの色の違いは頂点色で掛けるので、ここは1種類
+ * - surface: 灰色1枚を、凹凸(bumpMap は R)と粗さ(roughnessMap は G)の両方に使う。
+ *   明るさ 0.8〜0.95 がそのまま粗さになり、暗い筋(道管・晩材)は浅い溝になる
+ * 年輪の等高線ではなく、長手方向に流れる細い筋の集まりで描く(柾目〜追柾の板)。
+ * 筋の間隔・太さ・濃さ・うねりを1本ずつ変え、規則的な縞に見えないようにする。
  */
 export function woodTextures(cfg, colors) {
-  const W = cfg.size, H = cfg.size;
-  const light = srgb(colors.woodLight), dark = srgb(colors.woodDark);
-  // 色は sRGB のまま混ぜる(キャンバスに描くため)
-  const L = [light.r, light.g, light.b].map((c) => Math.pow(c, 1 / 2.2));
-  const D = [dark.r, dark.g, dark.b].map((c) => Math.pow(c, 1 / 2.2));
-  const height = new Float32Array(W * H);
-  const tone = new Float32Array(W * H);
+  const W = cfg.width, H = cfg.height;
+  let s = cfg.seed || 1;
+  const rnd = () => ((s = (s * 16807) % 2147483647) / 2147483647);
+  const mk = () => { const c = document.createElement('canvas'); c.width = W; c.height = H; return c; };
+  const col = mk(), srf = mk();
+  const cx = col.getContext('2d'), sx = srf.getContext('2d');
+  const base = new THREE.Color(colors.wood), dark = new THREE.Color(colors.woodDark), light = new THREE.Color(colors.woodLight);
+  const css = (c, a = 1) => `rgba(${Math.round(c.r * 255)},${Math.round(c.g * 255)},${Math.round(c.b * 255)},${a})`;
+  const sRGB = (c) => c.clone().convertLinearToSRGB();
+  const B = sRGB(base), D = sRGB(dark), L = sRGB(light);
+  cx.fillStyle = css(B); cx.fillRect(0, 0, W, H);
+  sx.fillStyle = `rgb(${Math.round(cfg.roughness[1] * 255)},${Math.round(cfg.roughness[1] * 255)},${Math.round(cfg.roughness[1] * 255)})`;
+  sx.fillRect(0, 0, W, H);
+
+  // 上下に3回描いて、縦方向にも継ぎ目なくつながるようにする
+  const wrapY = (fn) => { for (const o of [-H, 0, H]) fn(o); };
+  // 1) 幅の広い色の帯(材の色むら)
+  for (let i = 0; i < cfg.bands; i++) {
+    const y = rnd() * H, h = H * (0.04 + rnd() * 0.18), c = rnd() < 0.5 ? L : D;
+    wrapY((o) => {
+      const g = cx.createLinearGradient(0, y + o - h, 0, y + o + h);
+      g.addColorStop(0, css(c, 0)); g.addColorStop(0.5, css(c, 0.10 + rnd() * 0.16)); g.addColorStop(1, css(c, 0));
+      cx.fillStyle = g; cx.fillRect(0, y + o - h, W, h * 2);
+    });
+  }
+  // 2) 長手方向の筋。u 方向は1周期で必ず元に戻る(横にも継ぎ目なし)
   const knots = [];
-  for (let k = 0; k < cfg.knots; k++) knots.push([hash(k, 1, 9) , hash(k, 2, 9), 0.012 + 0.02 * hash(k, 3, 9)]);
-  const rings = cfg.rings;
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const u = x / W, v = y / H;
-      // 繊維方向に長く伸びたゆがみ
-      const warp = fbm(u * 2, v * 6, 2, 6, 3) - 0.5;
-      let f = v * rings + warp * 2.6;
-      // 節: 年輪が節の周りで押し広げられる
-      let knotDark = 0;
-      for (const [kx, ky, kr] of knots) {
-        let dx = u - kx; dx -= Math.round(dx);
-        let dy = v - ky; dy -= Math.round(dy);
-        const d2 = (dx * dx) / (kr * kr * 9) + (dy * dy) / (kr * kr);
-        const e = Math.exp(-d2 * 0.5);
-        f += e * 2.2 * Math.sign(dy || 1) * 0.5;
-        knotDark = Math.max(knotDark, Math.exp(-d2 * 2.5));
+  for (let k = 0; k < cfg.knots; k++) knots.push({ x: rnd() * W, y: rnd() * H, w: W * (0.04 + rnd() * 0.05), a: H * (0.02 + rnd() * 0.04) });
+  const line = (y0, amp, ph, k, wid, alphaC, alphaS, tone) => {
+    wrapY((o) => {
+      cx.beginPath(); sx.beginPath();
+      for (let x = 0; x <= W; x += 8) {
+        let y = y0 + o + amp * Math.sin((x / W) * Math.PI * 2 * k + ph) + amp * 0.35 * Math.sin((x / W) * Math.PI * 2 * (k + 2) + ph * 1.7);
+        // 節の近くで筋が押しのけられる
+        for (const n of knots) {
+          let dx = x - n.x; dx -= Math.round(dx / W) * W;
+          const dy = (y0 - n.y);
+          const e = Math.exp(-(dx * dx) / (n.w * n.w)) * Math.exp(-(dy * dy) / (n.a * n.a * 16));
+          y += Math.sign(dy || 1) * n.a * e;
+        }
+        if (x === 0) { cx.moveTo(x, y); sx.moveTo(x, y); } else { cx.lineTo(x, y); sx.lineTo(x, y); }
       }
-      const ring = f - Math.floor(f);
-      // 年輪: 夏材(濃い)は細く、春材(淡い)は広い
-      const late = Math.pow(Math.max(0, Math.sin(ring * Math.PI)), 6);
-      const fiber = fbm(u * 4, v * 160, 4, 160, 5, 3);          // 細い繊維の筋
-      const blotch = fbm(u * 3, v * 3, 3, 3, 11, 3);            // 大きな色むら
-      let t = 0.22 + late * 0.42 + (fiber - 0.5) * 0.3 + (blotch - 0.5) * 0.4 + knotDark * 0.7;
-      t = Math.max(0, Math.min(1, t));
-      tone[y * W + x] = t;
-      height[y * W + x] = -late * 0.6 - (fiber - 0.5) * 0.5 - knotDark * 0.4;
-    }
+      cx.lineWidth = sx.lineWidth = wid;
+      cx.strokeStyle = css(tone, alphaC); cx.stroke();
+      sx.strokeStyle = `rgba(0,0,0,${alphaS})`; sx.stroke();
+    });
+  };
+  let y = 0;
+  while (y < H) {
+    // 間隔はばらばら(詰まった所と空いた所ができる)。うねりは小さく、ほぼまっすぐ流れる
+    y += (H / cfg.lines) * (0.3 + rnd() * 1.4);
+    const r = rnd();
+    const late = r < 0.18;                     // 濃い晩材の筋(少なめ)
+    const hair = r > 0.55;                     // ごく細い筋(多め)
+    line(y, H * (0.001 + rnd() * 0.005), rnd() * 6.28, 1 + Math.floor(rnd() * 2),
+      late ? 1.0 + rnd() * 1.6 : hair ? 0.5 : 0.7 + rnd() * 0.8,
+      late ? 0.16 + rnd() * 0.16 : hair ? 0.05 + rnd() * 0.07 : 0.07 + rnd() * 0.1,
+      late ? 0.05 + rnd() * 0.03 : 0.015 + rnd() * 0.02,
+      late ? D : rnd() < 0.5 ? D.clone().lerp(B, 0.4) : L);
   }
-  const color = new Uint8Array(W * H * 4), normal = new Uint8Array(W * H * 4), rough = new Uint8Array(W * H * 4);
-  const [r0, r1] = cfg.roughness;
-  for (let y = 0; y < H; y++) {
-    for (let x = 0; x < W; x++) {
-      const i = y * W + x, t = tone[i];
-      for (let c = 0; c < 3; c++) color[i * 4 + c] = Math.round(255 * (L[c] + (D[c] - L[c]) * t));
-      color[i * 4 + 3] = 255;
-      const hx = height[y * W + ((x + 1) % W)] - height[y * W + ((x - 1 + W) % W)];
-      const hy = height[((y + 1) % H) * W + x] - height[((y - 1 + H) % H) * W + x];
-      const s = 2.2;
-      let nx = -hx * s, ny = -hy * s, nz = 1;
-      const l = Math.hypot(nx, ny, nz); nx /= l; ny /= l; nz /= l;
-      normal[i * 4] = Math.round((nx * 0.5 + 0.5) * 255);
-      normal[i * 4 + 1] = Math.round((ny * 0.5 + 0.5) * 255);
-      normal[i * 4 + 2] = Math.round((nz * 0.5 + 0.5) * 255);
-      normal[i * 4 + 3] = 255;
-      const g = Math.round(255 * (r0 + (r1 - r0) * Math.min(1, t * 1.2)));
-      rough[i * 4] = rough[i * 4 + 1] = rough[i * 4 + 2] = g; rough[i * 4 + 3] = 255;
-    }
+  // 長手方向に伸びた色の濃淡(筋に沿ってところどころ濃く・淡くなる)
+  for (let i = 0; i < (cfg.streaks || 0); i++) {
+    const sx0 = rnd() * W, sy0 = rnd() * H, len = W * (0.15 + rnd() * 0.5), h = 2 + rnd() * 10;
+    const c = rnd() < 0.55 ? D : L;
+    for (const ox of [-W, 0, W]) wrapY((o) => {
+      const g = cx.createLinearGradient(sx0 + ox, 0, sx0 + ox + len, 0);
+      g.addColorStop(0, css(c, 0)); g.addColorStop(0.5, css(c, 0.08 + rnd() * 0.1)); g.addColorStop(1, css(c, 0));
+      cx.fillStyle = g; cx.fillRect(sx0 + ox, sy0 + o - h / 2, len, h);
+    });
   }
-  const make = (data, srgbSpace) => {
-    const t = new THREE.DataTexture(data, W, H);
+  // 3) 道管(短い点線状のくぼみ)
+  for (let i = 0; i < cfg.pores; i++) {
+    const px = rnd() * W, py = rnd() * H, len = 3 + rnd() * 10;
+    cx.fillStyle = css(D, 0.10 + rnd() * 0.12); cx.fillRect(px, py, len, 1);
+    sx.fillStyle = 'rgba(0,0,0,0.06)'; sx.fillRect(px, py, len, 1);
+  }
+  // 4) 節の芯
+  for (const n of knots) {
+    wrapY((o) => {
+      const g = cx.createRadialGradient(n.x, n.y + o, 0, n.x, n.y + o, n.a * 1.2);
+      g.addColorStop(0, css(D, 0.55)); g.addColorStop(1, css(D, 0));
+      cx.fillStyle = g; cx.beginPath(); cx.ellipse(n.x, n.y + o, n.a * 2.2, n.a * 1.2, 0, 0, Math.PI * 2); cx.fill();
+    });
+  }
+  const tex = (c, srgb) => {
+    const t = new THREE.CanvasTexture(c);
     t.wrapS = t.wrapT = THREE.RepeatWrapping;
-    t.magFilter = THREE.LinearFilter; t.minFilter = THREE.LinearMipmapLinearFilter;
-    t.generateMipmaps = true; t.anisotropy = 8;
-    if (srgbSpace) t.colorSpace = THREE.SRGBColorSpace;
-    t.needsUpdate = true;
+    t.anisotropy = 8;
+    if (srgb) t.colorSpace = THREE.SRGBColorSpace;
     return t;
   };
-  return { map: make(color, true), normalMap: make(normal, false), roughnessMap: make(rough, false) };
+  return { map: tex(col, true), surface: tex(srf, false) };
 }
 
 /** ベルベットの毛並み(内張り): ごく弱い凹凸の法線 */
@@ -128,7 +155,7 @@ export function velvetNormal(size = 256) {
  * 本物の金属の安っぽさの差は「均一さ」から来るので、色・粗さ・面の向きにわずかなむらを入れる。
  * aged が大きいほど古びる(くすみが濃く、槌目が深い)。
  */
-export function goldTextures({ aged = 0.5, size = 512, seed = 1 } = {}) {
+export function goldTextures({ aged = 0.5, size = 512, seed = 1, stain = [0.42, 0.5, 0.62], roughRange = null } = {}) {
   const N = size;
   const height = new Float32Array(N * N);
   // 槌目: ゆがんだ格子の点のまわりのくぼみ(周期的なボロノイ)
@@ -163,11 +190,11 @@ export function goldTextures({ aged = 0.5, size = 512, seed = 1 } = {}) {
       // くぼみの底はくすみが残り、出っ張りは磨かれて明るい
       const hgt = height[i];
       const t = Math.min(1, tarnish + Math.max(0, -hgt) * aged * 0.6);
-      const r = 1 - t * 0.42, g = 1 - t * 0.5, b = 1 - t * 0.62;   // 白に掛ける係数(金の色は素材の color で決める)
+      const r = 1 - t * stain[0], g = 1 - t * stain[1], b = 1 - t * stain[2];   // 白に掛ける係数(地の色は素材の color で決める)
       col[i * 4] = Math.round(255 * r); col[i * 4 + 1] = Math.round(255 * g); col[i * 4 + 2] = Math.round(255 * b); col[i * 4 + 3] = 255;
       // 粗さ: 一方向の細かい磨き傷 + くすみは粗い
       const scratch = Math.pow(fbm(u * 3, v * 120, 3, 120, seed + 41, 2), 5) * 4 + Math.pow(fbm(u * 90, v * 4, 90, 4, seed + 51, 2), 6) * 3;
-      const rr = 0.12 + aged * 0.16 + scratch * 0.12 + t * 0.3;
+      const rr = roughRange ? roughRange[0] + (roughRange[1] - roughRange[0]) * Math.min(1, scratch * 0.5 + t * 0.8 + (cloud - 0.3) * 0.6) : 0.12 + aged * 0.16 + scratch * 0.12 + t * 0.3;
       const gch = Math.round(255 * Math.min(1, rr));
       rough[i * 4] = rough[i * 4 + 1] = rough[i * 4 + 2] = gch; rough[i * 4 + 3] = 255;
       const hx = height[y * N + ((x + 1) % N)] - height[y * N + ((x - 1 + N) % N)];

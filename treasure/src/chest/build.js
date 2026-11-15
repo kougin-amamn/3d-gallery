@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { roundedBox, extrudeX, extrudeY, arc, roundRect, boxUV, cylUV, paint, merge } from './shapes.js';
+import { roundedBox, extrudeX, extrudeY, arc, roundRect, boxUV, cylUV, paint, edgePaint, merge } from './shapes.js';
 import { woodTextures, velvetNormal, goldTextures } from './wood.js';
 
 // 宝箱を組み立てる。単位はメートル、x が幅、y が上、z が手前。
@@ -16,24 +16,24 @@ export function buildChest(cfg) {
   const yb = t, yt = t + H;                    // 胴の底と上端(下に帯金の厚み分だけ浮かせる)
 
   // ---------- 素材 ----------
+  // 木: 鏡のような反射を持たせない(粗さ 0.8〜0.95、金属度 0)。凹凸は bumpMap で控えめに
   const woodTex = woodTextures(cfg.wood, C);
   const wood = new THREE.MeshStandardMaterial({
-    map: woodTex.map, normalMap: woodTex.normalMap, roughnessMap: woodTex.roughnessMap,
-    normalScale: new THREE.Vector2(cfg.wood.normalScale, cfg.wood.normalScale),
-    roughness: 1, metalness: 0, vertexColors: true,
+    map: woodTex.map, bumpMap: woodTex.surface, bumpScale: cfg.wood.bumpScale,
+    roughnessMap: woodTex.surface, roughness: 1, metalness: 0, vertexColors: true,
   });
-  // 金は2段階: 帯金・角金・取っ手は古びた金(くすみと槌目)、鋲・錠前・ちょうつがいは磨いた金
+  // 鉄: 帯金・角金・取っ手は打ち出しの黒い鉄(角は擦れて地金が光る)、鋲・錠前・ちょうつがいは少しなめらかな鉄
   const MT = cfg.metal;
-  const agedTex = goldTextures({ aged: MT.aged, seed: 3 });
-  const polTex = goldTextures({ aged: MT.polished, seed: 7, size: 256 });
+  const ironTex = goldTextures({ aged: MT.aged, seed: 3, stain: MT.stain, roughRange: MT.roughness });
+  const ironSmoothTex = goldTextures({ aged: MT.aged * 0.5, seed: 7, size: 256, stain: MT.stain, roughRange: MT.roughnessSmooth });
   const ns = new THREE.Vector2(MT.normalScale, MT.normalScale);
-  const brass = new THREE.MeshPhysicalMaterial({
-    color: C.brass, metalness: 1, roughness: 1,
-    map: agedTex.map, roughnessMap: agedTex.roughnessMap, normalMap: agedTex.normalMap, normalScale: ns,
+  const iron = new THREE.MeshStandardMaterial({
+    color: C.iron, metalness: MT.metalness, roughness: 1, vertexColors: true,
+    map: ironTex.map, roughnessMap: ironTex.roughnessMap, normalMap: ironTex.normalMap, normalScale: ns,
   });
-  const brassPolished = new THREE.MeshPhysicalMaterial({
-    color: C.goldPolished, metalness: 1, roughness: 1,
-    map: polTex.map, roughnessMap: polTex.roughnessMap, normalMap: polTex.normalMap, normalScale: ns.clone().multiplyScalar(0.5),
+  const ironSmooth = new THREE.MeshStandardMaterial({
+    color: C.ironSmooth, metalness: MT.metalness, roughness: 1,
+    map: ironSmoothTex.map, roughnessMap: ironSmoothTex.roughnessMap, normalMap: ironSmoothTex.normalMap, normalScale: ns.clone().multiplyScalar(0.5),
   });
   const velvet = new THREE.MeshPhysicalMaterial({
     color: C.velvet, roughness: 0.9, sheen: 1, sheenColor: new THREE.Color('#FF8A9A'), sheenRoughness: 0.4,
@@ -47,14 +47,21 @@ export function buildChest(cfg) {
 
   const tints = C.woodTint.map((h) => new THREE.Color(h));
   const center = new THREE.Vector3(0, yb + H / 2, 0);
-  /** 木の頂点色: 板ごとの色むら × 内側は暗く */
-  const woodPaint = (g, tint, c = center, edges = false) => paint(g, (p, n) => {
+  const WD = cfg.wood;
+  /**
+   * 木の頂点色: 板ごとの色 × 内側は暗く × 面取り(板のすき間)は暗く × 木口は暗く。
+   * 木口(切り口)は繊維の穴が光を吸うので、実物でも側面より暗い。
+   */
+  const woodPaint = (g, tint, { c = center, along = null, edges = false } = {}) => paint(g, (p, n) => {
     const inner = n.dot(p.clone().sub(c)) < 0;
-    let k = inner ? 0.48 : 1;
-    // 板の角の丸み(面取り)は少し暗く: 板と板のすき間が深く見える
-    if (edges && Math.max(Math.abs(n.x), Math.abs(n.y), Math.abs(n.z)) < 0.97) k *= 0.62;
-    return [tint.r * k, tint.g * k * 0.96, tint.b * k * 0.9];
+    let k = inner ? WD.innerShade : 1;
+    const m = Math.max(Math.abs(n.x), Math.abs(n.y), Math.abs(n.z));
+    if (edges && m < 0.97) k *= WD.gapShade;
+    if (along && Math.abs(n[along]) > 0.9) k *= WD.endShade;
+    return [tint.r * k, tint.g * k, tint.b * k];
   });
+  /** 板ごとの木目: 位置(位相)と筋の間隔をずらす */
+  const plankUV = () => ({ scale: WD.uvScale, scaleV: WD.uvScale * (0.75 + rnd() * 0.55), offset: [rnd(), rnd()] });
 
   const root = new THREE.Group();
   root.name = 'chest';
@@ -68,20 +75,20 @@ export function buildChest(cfg) {
       // 前後の板(横長)
       const g = roundedBox(W - 0.002, ph - B.gap, wl, B.bevel, 2);
       g.translate(0, y, s * (D / 2 - wl / 2));
-      boxUV(g, { along: 'x', scale: 0.9, offset: [rnd(), rnd()] });
-      bodyWood.push(woodPaint(g, pick(tints), center, true));
+      boxUV(g, { along: 'x', ...plankUV() });
+      bodyWood.push(woodPaint(g, pick(tints), { along: 'x', edges: true }));
       // 左右の板(前後の板の間にはさまる)
       const gs = roundedBox(wl, ph - B.gap, D - 2 * wl - B.gap, B.bevel, 2);
       gs.translate(s * (W / 2 - wl / 2), y, 0);
-      boxUV(gs, { along: 'z', scale: 0.9, offset: [rnd(), rnd()] });
-      bodyWood.push(woodPaint(gs, pick(tints), center, true));
+      boxUV(gs, { along: 'z', ...plankUV() });
+      bodyWood.push(woodPaint(gs, pick(tints), { along: 'z', edges: true }));
     }
   }
   {
     const g = roundedBox(W - 2 * wl, wl, D - 2 * wl, B.bevel, 2);
     g.translate(0, yb + wl / 2, 0);
-    boxUV(g, { along: 'x', scale: 0.9, offset: [rnd(), rnd()] });
-    bodyWood.push(woodPaint(g, pick(tints), center, true));
+    boxUV(g, { along: 'x', ...plankUV() });
+    bodyWood.push(woodPaint(g, pick(tints), { along: 'x', edges: true }));
   }
   const bodyMesh = new THREE.Mesh(merge(bodyWood), wood);
   bodyMesh.castShadow = bodyMesh.receiveShadow = true;
@@ -99,7 +106,7 @@ export function buildChest(cfg) {
   }
 
   // ---------- 胴の金具 ----------
-  const bodyBrass = [];
+  const bodyIron = [];
   // 縦の帯金(前・底・後ろをまたぐ U 字)
   for (const sx of BD.strapX) {
     const pts = [
@@ -107,7 +114,7 @@ export function buildChest(cfg) {
     ];
     const g = extrudeX(pts, bw, BD.bevel);
     g.translate(sx, 0, 0);
-    bodyBrass.push(g);
+    bodyIron.push(edgePaint(g, 'x', MT.edgeWear));
   }
   // 上下の縁帯
   const ring = (y0, h) => {
@@ -115,10 +122,10 @@ export function buildChest(cfg) {
     const hole = roundRect(W - 0.002, D - 0.002, 0.002, 1);
     const g = extrudeY(outer, h, BD.bevel * 0.8, [hole]);
     g.translate(0, y0, 0);
-    return g;
+    return edgePaint(g, 'y', MT.edgeWear);
   };
-  bodyBrass.push(ring(yt - BD.rim, BD.rim));
-  bodyBrass.push(ring(0, BD.rim + yb));
+  bodyIron.push(ring(yt - BD.rim, BD.rim));
+  bodyIron.push(ring(0, BD.rim + yb));
   // 四隅の角金(L 字)
   const c = BD.corner;
   for (const sx of [1, -1]) for (const sz of [1, -1]) {
@@ -128,12 +135,12 @@ export function buildChest(cfg) {
       [sx * X, sz * Z], [sx * X, sz * (Z - c)], [sx * (X + tc), sz * (Z - c)],
     ];
     if (sx * sz < 0) pts = pts.reverse();
-    bodyBrass.push(extrudeY(pts, yt, BD.bevel * 0.8));
+    bodyIron.push(edgePaint(extrudeY(pts, yt, BD.bevel * 0.8), 'y', MT.edgeWear));
   }
-  const bodyBrassGeo = merge(bodyBrass.map((g) => boxUV(g, { along: 'y', scale: 1.4 })));
-  const bodyBrassMesh = new THREE.Mesh(bodyBrassGeo, brass);
-  bodyBrassMesh.castShadow = bodyBrassMesh.receiveShadow = true;
-  root.add(bodyBrassMesh);
+  const bodyIronGeo = merge(bodyIron.map((g) => boxUV(g, { along: 'y', scale: 1.4 })));
+  const bodyIronMesh = new THREE.Mesh(bodyIronGeo, iron);
+  bodyIronMesh.castShadow = bodyIronMesh.receiveShadow = true;
+  root.add(bodyIronMesh);
 
   // ---------- 取っ手(左右) ----------
   for (const s of [1, -1]) {
@@ -142,17 +149,17 @@ export function buildChest(cfg) {
     for (const z of [-0.1, 0.1]) {
       const p = roundedBox(0.014, 0.075, 0.05, 0.005, 2);
       p.translate(hx + s * 0.007, yt - 0.09, z);
-      parts.push(boxUV(p, { along: 'y' }));
+      parts.push(edgePaint(boxUV(p, { along: 'y' }), 'box', MT.edgeWear));
       const eye = new THREE.TorusGeometry(0.016, 0.006, 8, 16).rotateY(Math.PI / 2).toNonIndexed();
       eye.deleteAttribute('uv');
       eye.translate(hx + s * 0.022, yt - 0.09, z);
-      parts.push(boxUV(eye, { along: 'y' }));
+      parts.push(edgePaint(boxUV(eye, { along: 'y' }), 'none'));
     }
     const handle = new THREE.TorusGeometry(0.1, 0.012, 10, 28, Math.PI).rotateZ(Math.PI).rotateY(Math.PI / 2).toNonIndexed();
     handle.deleteAttribute('uv');
     handle.translate(hx + s * 0.03, yt - 0.09, 0);
-    parts.push(boxUV(handle, { along: 'z' }));
-    const m = new THREE.Mesh(merge(parts), brass);
+    parts.push(edgePaint(boxUV(handle, { along: 'z' }), 'none'));
+    const m = new THREE.Mesh(merge(parts), iron);
     m.castShadow = true;
     root.add(m);
   }
@@ -172,52 +179,52 @@ export function buildChest(cfg) {
     const a1 = ((k + 1) / L.staves) * Math.PI - (k === L.staves - 1 ? 0 : gapA / 2);
     const pts = [...arc(0, yt, R, a0, a1, 10), ...arc(0, yt, R - wl, a1, a0, 10)];
     const g = extrudeX(pts, W - 0.002, L.bevel, [], 10);
-    cylUV(g, { cy: yt, cz: 0, scale: 0.9, offset: [rnd(), rnd()] });
-    lidWood.push(woodPaint(g, pick(tints), new THREE.Vector3(0, yt, 0)));
+    cylUV(g, { cy: yt, cz: 0, ...plankUV() });
+    lidWood.push(woodPaint(g, pick(tints), { c: new THREE.Vector3(0, yt, 0), along: 'x' }));
   }
   for (const s of [1, -1]) {
     const pts = [...arc(0, yt, R - wl * 0.98, 0, Math.PI, 28)];
     const g = extrudeX(pts, wl, L.bevel, [], 28);
     g.translate(s * (W / 2 - wl / 2 - 0.001), 0, 0);
-    cylUV(g, { cy: yt, cz: 0, scale: 0.9, offset: [rnd(), rnd()] });
-    lidWood.push(woodPaint(g, pick(tints), new THREE.Vector3(-s * 2, yt, 0)));
+    cylUV(g, { cy: yt, cz: 0, ...plankUV() });
+    lidWood.push(woodPaint(g, pick(tints), { c: new THREE.Vector3(-s * 2, yt, 0) }));
   }
   const lidWoodGeo = toHinge(merge(lidWood));
   const lidMesh = new THREE.Mesh(lidWoodGeo, wood);
   lidMesh.castShadow = lidMesh.receiveShadow = true;
   lid.add(lidMesh);
 
-  const lidBrass = [];
+  const lidIron = [];
   const lidStrap = (x, th) => {
     const pts = [...arc(0, yt, R + th, 0, Math.PI, 40), ...arc(0, yt, R - 0.001, Math.PI, 0, 40)];
     const g = extrudeX(pts, bw, BD.bevel, [], 40);
     g.translate(x, 0, 0);
-    return g;
+    return edgePaint(g, 'x', MT.edgeWear);
   };
-  for (const sx of BD.strapX) lidBrass.push(lidStrap(sx, t1));
-  for (const s of [1, -1]) lidBrass.push(lidStrap(s * (W / 2 - bw / 2 + 0.002), t));
+  for (const sx of BD.strapX) lidIron.push(lidStrap(sx, t1));
+  for (const s of [1, -1]) lidIron.push(lidStrap(s * (W / 2 - bw / 2 + 0.002), t));
   // フタの前の縁(下の辺)。後ろはちょうつがいなので縁を付けない
   {
     const g = roundedBox(W + 2 * t - 0.004, BD.rim * 0.9, t, 0.004, 2);
     g.translate(0, yt + BD.rim * 0.45, R + t / 2);
-    lidBrass.push(g);
+    lidIron.push(edgePaint(g, 'box', MT.edgeWear));
   }
   // 掛け金(フタから垂れる板)
   const zf = R + t;                  // 前の金具の表面
   const hasp = roundedBox(0.1, 0.17, 0.012, 0.012, 3);
   hasp.translate(0, yt - 0.025, zf + 0.006);
-  lidBrass.push(hasp);
-  const lidBrassGeo = toHinge(merge(lidBrass.map((g) => boxUV(g, { along: 'x', scale: 1.4 }))));
-  const lidBrassMesh = new THREE.Mesh(lidBrassGeo, brass);
-  lidBrassMesh.castShadow = lidBrassMesh.receiveShadow = true;
-  lid.add(lidBrassMesh);
+  lidIron.push(edgePaint(hasp, 'box', MT.edgeWear));
+  const lidIronGeo = toHinge(merge(lidIron.map((g) => boxUV(g, { along: 'x', scale: 1.4 }))));
+  const lidIronMesh = new THREE.Mesh(lidIronGeo, iron);
+  lidIronMesh.castShadow = lidIronMesh.receiveShadow = true;
+  lid.add(lidIronMesh);
   // 掛け金の輪(南京錠のつるが通る)
   const stapleY = yt - 0.093;
   {
     const g = new THREE.TorusGeometry(0.018, 0.0055, 10, 18, Math.PI).rotateZ(-Math.PI / 2).rotateY(-Math.PI / 2);
     g.translate(0, stapleY, zf + 0.012);
     toHinge(g);
-    const m = new THREE.Mesh(g, brassPolished);
+    const m = new THREE.Mesh(g, ironSmooth);
     m.castShadow = true;
     lid.add(m);
   }
@@ -234,13 +241,13 @@ export function buildChest(cfg) {
       parts.push(leaf);
     }
     const g = merge(parts.map((p) => { p.deleteAttribute('uv'); return boxUV(p, { along: 'x' }); }));
-    const m = new THREE.Mesh(g, brassPolished);
+    const m = new THREE.Mesh(g, ironSmooth);
     m.castShadow = true;
     root.add(m);
   }
 
   // ---------- 鋲 ----------
-  const rivetGeo = new THREE.SphereGeometry(RV.radius, 14, 8, 0, Math.PI * 2, 0, Math.PI / 2);
+  const rivetGeo = new THREE.SphereGeometry(RV.radius, 10, 5, 0, Math.PI * 2, 0, Math.PI / 2);
   const bodyRivets = [], lidRivets = [];
   const sp = RV.spacing;
   const along = (a, b, margin = 0.05) => {
@@ -284,7 +291,7 @@ export function buildChest(cfg) {
   for (const [x, y] of [[-0.03, yt + 0.035], [0.03, yt + 0.035]]) lidRivets.push([x, y, zf + 0.012, 0, 0, 1]);
 
   const makeRivets = (list, offset) => {
-    const m = new THREE.InstancedMesh(rivetGeo, brassPolished, list.length);
+    const m = new THREE.InstancedMesh(rivetGeo, ironSmooth, list.length);
     const up = new THREE.Vector3(0, 1, 0), q = new THREE.Quaternion(), mat = new THREE.Matrix4();
     list.forEach(([x, y, z, nx, ny, nz], i) => {
       q.setFromUnitVectors(up, new THREE.Vector3(nx, ny, nz));
@@ -292,7 +299,7 @@ export function buildChest(cfg) {
       mat.compose(new THREE.Vector3(x + offset.x, y + offset.y, z + offset.z), q, new THREE.Vector3(s, s * 0.8, s));
       m.setMatrixAt(i, mat);
     });
-    m.castShadow = true;
+    m.castShadow = false;   // 小さな鋲の影は見えないので落とさない
     return m;
   };
   root.add(makeRivets(bodyRivets, new THREE.Vector3()));
@@ -310,7 +317,7 @@ export function buildChest(cfg) {
   {
     const bodyG = roundedBox(0.14, 0.125, 0.04, 0.018, 3);
     bodyG.translate(0, -0.0625, 0);
-    const m = new THREE.Mesh(bodyG, brassPolished);
+    const m = new THREE.Mesh(bodyG, ironSmooth);
     m.castShadow = true;
     lock.add(m);
     // 鍵穴
@@ -322,7 +329,7 @@ export function buildChest(cfg) {
     lock.add(kh);
     // 鍵穴の周りの座金
     const ringG = new THREE.TorusGeometry(0.02, 0.003, 8, 28);
-    const ringM = new THREE.Mesh(ringG, brass);
+    const ringM = new THREE.Mesh(ringG, ironSmooth);
     ringM.position.set(0, -0.07, 0.02);
     lock.add(ringM);
     // 上の赤い宝石(丸く磨いたカボション)
@@ -340,14 +347,15 @@ export function buildChest(cfg) {
     const arcG = new THREE.TorusGeometry(0.042, 0.0085, 12, 32, Math.PI);
     const legs = [-0.042, 0.042].map((x) => new THREE.CylinderGeometry(0.0085, 0.0085, 0.03, 12).translate(x, -0.015, 0));
     const g = merge([arcG.toNonIndexed(), ...legs.map((l) => l.toNonIndexed())]);
-    const m = new THREE.Mesh(g, brassPolished);
+    const m = new THREE.Mesh(g, ironSmooth);
     m.castShadow = true;
     shackle.add(m);
   }
 
   return {
     root, lid, lock, shackle,
-    materials: { wood, brass, brassPolished, velvet, lockGem },
+    materials: { wood, iron, ironSmooth, velvet, lockGem },
+    textures: [woodTex.map, woodTex.surface, ironTex.map, ironTex.roughnessMap, ironTex.normalMap, ironSmoothTex.map, ironSmoothTex.roughnessMap, ironSmoothTex.normalMap],
     dims: { W, D, H, R, yb, yt, wl, t, t1, zf, lockHome: lock.position.clone() },
   };
 }

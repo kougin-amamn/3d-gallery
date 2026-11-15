@@ -11,10 +11,10 @@ const range = (a, b) => a + (b - a) * rnd();
 function coinGeometry(r, th) {
   const h = th / 2;
   const prof = [
-    [0, h * 0.55], [r * 0.7, h * 0.55], [r * 0.78, h * 0.8], [r * 0.86, h], [r * 0.97, h],
-    [r, h * 0.7], [r, -h * 0.7], [r * 0.97, -h], [r * 0.86, -h], [r * 0.78, -h * 0.8], [r * 0.7, -h * 0.55], [0, -h * 0.55],
+    [0, h * 0.6], [r * 0.8, h * 0.6], [r * 0.88, h], [r, h * 0.75],
+    [r, -h * 0.75], [r * 0.88, -h], [r * 0.8, -h * 0.6], [0, -h * 0.6],
   ].map(([x, y]) => new THREE.Vector2(x, y)).reverse();
-  const g = new THREE.LatheGeometry(prof, 40);
+  const g = new THREE.LatheGeometry(prof, 22);   // 小さいので 22 分割で十分(300枚以上並ぶ)
   // 表裏の面に刻印を貼るため、上から見た位置を UV にする
   const p = g.attributes.position, uv = g.attributes.uv;
   for (let i = 0; i < p.count; i++) uv.setXY(i, p.getX(i) / (r * 2) + 0.5, p.getZ(i) / (r * 2) + 0.5);
@@ -106,7 +106,8 @@ export function buildTreasure(cfg, dims, chest) {
     m4.compose(v.set(x, y, z), q, one);
     pileCoins.setMatrixAt(i, m4);
   }
-  pileCoins.castShadow = pileCoins.receiveShadow = true;
+  pileCoins.castShadow = false;   // 箱の中で、影はフタと壁の影で足りる
+  pileCoins.receiveShadow = true;
   pile.add(pileCoins);
   for (let i = 0; i < T.pileGems; i++) {
     const x = range(-ax * 0.8, ax * 0.8), z = range(-az * 0.7, az * 0.7);
@@ -208,6 +209,7 @@ export function stepTreasure(tr, cfg, dims, dt, padR) {
   const { W, D, yt, t } = dims;
   const hx = W / 2 + t * 1.4, hz = D / 2 + t * 1.4;
   let dirty = false;
+  tr.moving = false;     // 1つでも動いていれば true(影の描き直しに使う)
   for (const pt of tr.particles) {
     if (pt.state === 'hidden') continue;
     dirty = true;
@@ -216,6 +218,7 @@ export function stepTreasure(tr, cfg, dims, dt, padR) {
     if (pt.target === 1) pt.scale = Math.min(1, pt.scale + dt * 9);
     else { pt.scale = Math.max(0, pt.scale - dt * 7); if (pt.scale === 0) { pt.state = 'hidden'; pt.mesh.setMatrixAt(pt.slot, m4.makeScale(0, 0, 0)); pt.mesh.instanceMatrix.needsUpdate = true; continue; } }
     pt.state = 'fly';
+    if (!pt.landed || pt.scale < 1 || pt.target === 0 || pt.v.lengthSq() > 1e-4) tr.moving = true;
     if (!pt.landed || pt.v.lengthSq() > 1e-4) {
       pt.v.y -= T.gravity * dt;
       pt.p.addScaledVector(pt.v, dt);
@@ -254,6 +257,7 @@ export function stepTreasure(tr, cfg, dims, dt, padR) {
       const w = pt.w, ang = w.length() * dt;
       if (ang > 0) { dq.setFromAxisAngle(s3.copy(w).normalize(), ang); pt.q.premultiply(dq); }
     }
+    if (pt.landed && pt.scale === 1 && pt.target === 1 && pt.v.lengthSq() <= 1e-4 && pt.q.angleTo(pt.rest) < 1e-3) continue;
     const k = pt.target === 1 ? easeOutBack(pt.scale) : pt.scale;
     m4.compose(pt.p, pt.q, s3.set(k, k, k));
     pt.mesh.setMatrixAt(pt.slot, m4);
