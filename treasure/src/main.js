@@ -7,6 +7,7 @@ import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
 import { buildChest } from './chest/build.js';
 import { createStudio, contactShadow, createMetalEnv } from './look/studio.js';
 import { buildTreasure, launch, retract, stepTreasure } from './fx/treasure.js';
+import { createGrounds } from './look/ground.js';
 
 async function loadJSON(url) {
   const r = await fetch(url);
@@ -17,7 +18,7 @@ async function loadJSON(url) {
 const $ = (s) => document.querySelector(s);
 
 async function main() {
-  const [cfg, scn] = await Promise.all([loadJSON('./data/chest.json'), loadJSON('./data/scene.json')]);
+  const [cfg, scn, gcfg] = await Promise.all([loadJSON('./data/chest.json'), loadJSON('./data/scene.json'), loadJSON('./data/grounds.json')]);
   const params = new URLSearchParams(location.search);
   const tier = scn.quality[params.get('q') || (matchMedia('(pointer: coarse)').matches ? 'low' : 'high')] || scn.quality.high;
 
@@ -61,7 +62,30 @@ async function main() {
 
   const tr = buildTreasure(cfg, dims, root);
   scene.add(tr.flyCoins, ...tr.flyGems);
-  const padR = scn.pedestal.radius - 0.08;
+  // ---------- 地面 ----------
+  const grounds = createGrounds(scene, gcfg, studio);
+  let padR = scn.pedestal.radius - 0.08;     // 金貨が転がってよい半径
+  const STORE = 'treasure.ground';
+  function setGround(id) {
+    const def = grounds.set(id);
+    padR = def.pedestal ? scn.pedestal.radius - 0.08 : grounds.radius * 0.62;
+    renderer.shadowMap.needsUpdate = true;
+    for (const b of document.querySelectorAll('#grounds button')) b.setAttribute('aria-pressed', String(b.dataset.id === def.id));
+    try { localStorage.setItem(STORE, def.id); } catch (e) { /* 保存できなくても動く */ }
+    return def.id;
+  }
+  {
+    const nav = $('#grounds');
+    for (const d of gcfg.grounds) {
+      const b = document.createElement('button');
+      b.type = 'button'; b.dataset.id = d.id; b.textContent = d.label;
+      b.addEventListener('click', () => setGround(d.id));
+      nav.appendChild(b);
+    }
+    let first = params.get('ground');
+    if (!first) { try { first = localStorage.getItem(STORE); } catch (e) { first = null; } }
+    setGround(first || gcfg.default);
+  }
 
   // 金属には専用の暗いスタジオを映す(背景の明るいパステルを映すと金が平板な黄色になる)
   const metalEnv = createMetalEnv(renderer, scn.metalEnv);
@@ -311,14 +335,14 @@ async function main() {
         m.dispose();
       }
     });
-    metalEnv.dispose(); studio.envTexture.dispose();
+    metalEnv.dispose(); studio.envTexture.dispose(); grounds.dispose();
     composer.dispose(); renderer.dispose();
   }
   addEventListener('pagehide', dispose, { once: true });
 
   // 確認用の入口
   window.__chest = {
-    ready: true, st, open, close, toggle, camera, controls, renderer, scene, built, tr, dispose,
+    ready: true, st, open, close, toggle, camera, controls, renderer, scene, built, tr, dispose, setGround, grounds,
     /** 時間を進める(スクリーンショット用) */
     advance(sec, fps = 60) { const n = Math.round(sec * fps); for (let i = 0; i < n; i++) step(1 / fps); },
     pause(v = true) { st.paused = v; },

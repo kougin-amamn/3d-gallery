@@ -1,0 +1,119 @@
+{
+  "note": "地面の種類。background は画面の背景(上・地平・下)。tex はテクスチャ生成の値、repeat は 1m あたりの繰り返し回数",
+  "default": "studio",
+  "radius": 2.6,
+  "fade": 0.35,
+  "grounds": [
+    {
+      "id": "studio",
+      "label": "スタジオ",
+      "background": {
+        "top": "#8FD3F0",
+        "horizon": "#FFE9D6",
+        "bottom": "#F9C9DF"
+      },
+      "pedestal": true
+    },
+    {
+      "id": "sand",
+      "label": "砂浜",
+      "background": {
+        "top": "#7CC6EA",
+        "horizon": "#F4EBDD",
+        "bottom": "#E2CBA6"
+      },
+      "tex": {
+        "kind": "sand",
+        "size": 512,
+        "base": "#D9BE92",
+        "dark": "#B39062",
+        "light": "#EEDCBC",
+        "wet": "#A88A60",
+        "ripples": 22
+      },
+      "repeat": 0.9,
+      "bumpScale": 1.2,
+      "roughness": [
+        0.88,
+        1.0
+      ]
+    },
+    {
+      "id": "stone",
+      "label": "石畳",
+      "background": {
+        "top": "#6E6A86",
+        "horizon": "#C9B9B0",
+        "bottom": "#5E5852"
+      },
+      "tex": {
+        "kind": "stone",
+        "size": 1024,
+        "base": "#8D857A",
+        "dark": "#5E574F",
+        "light": "#ADA595",
+        "mortar": "#3A342E",
+        "rows": 5
+      },
+      "repeat": 0.75,
+      "bumpScale": 2.5,
+      "roughness": [
+        0.78,
+        0.97
+      ]
+    },
+    {
+      "id": "grass",
+      "label": "草地",
+      "background": {
+        "top": "#84C7EE",
+        "horizon": "#E8F0D8",
+        "bottom": "#7FA05A"
+      },
+      "tex": {
+        "kind": "grass",
+        "size": 512,
+        "base": "#4F7A2E",
+        "greens": [
+          "#3E6A24",
+          "#5C8C34",
+          "#76A444",
+          "#8DB556"
+        ],
+        "dry": "#A89A5C",
+        "blades": 26000
+      },
+      "repeat": 1.4,
+      "bumpScale": 1.5,
+      "roughness": [
+        0.85,
+        1.0
+      ]
+    },
+    {
+      "id": "deck",
+      "label": "甲板",
+      "background": {
+        "top": "#3E8FC4",
+        "horizon": "#CFE6F0",
+        "bottom": "#3A4A5A"
+      },
+      "tex": {
+        "kind": "deck",
+        "width": 1024,
+        "height": 1024,
+        "boards": 8,
+        "base": "#8A6A4C",
+        "dark": "#4E3826",
+        "light": "#A88866",
+        "caulk": "#1E1915"
+      },
+      "repeat": 0.42,
+      "bumpScale": 1.2,
+      "roughness": [
+        0.8,
+        0.95
+      ]
+    }
+  ]
+}

@@ -65,7 +65,8 @@ export function createStudio(renderer, scene, cfg) {
   scene.environmentIntensity = cfg.environmentIntensity;
   pmrem.dispose();
 
-  scene.add(screenBackdrop(cfg.background));
+  const sky = screenBackdrop(cfg.background);
+  scene.add(sky);
 
   // 主光源(柔らかい影)と補助光
   const key = new THREE.DirectionalLight(cfg.key.color, cfg.key.intensity);
@@ -96,7 +97,7 @@ export function createStudio(renderer, scene, cfg) {
   pedestal.receiveShadow = true;
   scene.add(pedestal);
 
-  return { key, fill, hemi, pedestal, envTexture: rt.texture };
+  return { key, fill, hemi, pedestal, backdrop: sky, envTexture: rt.texture };
 }
 
 /** 接地影: 箱のすぐ下の、光が回り込まない暗がり */

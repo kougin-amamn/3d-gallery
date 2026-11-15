@@ -40,6 +40,24 @@ body { font-family: 'M PLUS Rounded 1c', system-ui, sans-serif; -webkit-tap-high
   color: var(--ink); -webkit-text-stroke: 0; text-shadow: none;
 }
 
+.grounds {
+  position: fixed; top: calc(env(safe-area-inset-top, 0px) + 18px); right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: calc(100% - 32px);
+}
+.grounds button {
+  font: 800 13px/1 'M PLUS Rounded 1c', sans-serif; letter-spacing: 0.04em;
+  color: var(--ink); background: var(--cream);
+  border: 2.5px solid var(--ink); border-radius: 999px; padding: 8px 12px;
+  box-shadow: 0 3px 0 var(--ink); cursor: pointer; white-space: nowrap;
+}
+.grounds button[aria-pressed="true"] { background: var(--gold); }
+.grounds button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.grounds button:focus-visible { outline: 3px solid var(--berry); outline-offset: 2px; }
+@media (max-width: 640px) {
+  .grounds { top: auto; bottom: calc(env(safe-area-inset-bottom, 0px) + 92px); left: 16px; right: 16px; max-width: none; justify-content: center; }
+  .grounds button { font-size: 12px; padding: 7px 10px; }
+}
+
 .hint {
   position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); transform: translateX(-50%);
   font: 800 16px/1 'M PLUS Rounded 1c', sans-serif; letter-spacing: 0.08em;
