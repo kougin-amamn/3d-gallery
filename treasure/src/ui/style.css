@@ -1,0 +1,76 @@
+:root {
+  --ink: #4A2A1A;
+  --cream: #FFF6EA;
+  --gold: #F2B640;
+  --gold-deep: #C98A1E;
+  --berry: #E8406A;
+  --sky: #BFE3F2;
+}
+[hidden] { display: none !important; }
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; background: var(--sky); color: var(--ink); }
+body { font-family: 'M PLUS Rounded 1c', system-ui, sans-serif; -webkit-tap-highlight-color: transparent; }
+#view { position: fixed; inset: 0; width: 100%; height: 100%; display: block; touch-action: none; outline: none; }
+
+.top {
+  position: fixed; top: 0; left: 0; right: 0;
+  padding: calc(env(safe-area-inset-top, 0px) + 18px) max(20px, env(safe-area-inset-right, 0px)) 0 max(20px, env(safe-area-inset-left, 0px));
+  pointer-events: none;
+  display: flex; align-items: center; gap: 14px;
+}
+.back {
+  pointer-events: auto; flex: none;
+  display: grid; place-items: center; width: 40px; height: 40px;
+  color: var(--ink); background: var(--cream);
+  border: 3px solid var(--ink); border-radius: 50%; box-shadow: 0 3px 0 var(--ink);
+}
+.back svg { width: 18px; height: 18px; }
+.back:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--ink); }
+.logo {
+  margin: 0; font-family: 'Dela Gothic One', 'M PLUS Rounded 1c', sans-serif; font-weight: 400;
+  font-size: clamp(26px, 5vw, 40px); letter-spacing: 0.06em; line-height: 1;
+  color: var(--gold);
+  -webkit-text-stroke: 2px var(--ink);
+  paint-order: stroke fill;
+  text-shadow: 0 4px 0 var(--ink);
+  display: flex; align-items: baseline; gap: 12px;
+}
+.logo span {
+  font-family: 'M PLUS Rounded 1c', sans-serif; font-weight: 800; font-size: 0.42em; letter-spacing: 0.2em;
+  color: var(--ink); -webkit-text-stroke: 0; text-shadow: none;
+}
+
+.hint {
+  position: fixed; left: 50%; bottom: calc(env(safe-area-inset-bottom, 0px) + 28px); transform: translateX(-50%);
+  font: 800 16px/1 'M PLUS Rounded 1c', sans-serif; letter-spacing: 0.08em;
+  color: var(--ink); background: var(--cream);
+  border: 3px solid var(--ink); border-radius: 999px; padding: 14px 26px;
+  box-shadow: 0 5px 0 var(--ink);
+  cursor: pointer; white-space: nowrap;
+  animation: bob 1.8s ease-in-out infinite;
+}
+.hint:active { transform: translateX(-50%) translateY(4px); box-shadow: 0 1px 0 var(--ink); animation: none; }
+.hint:focus-visible { outline: 3px solid var(--berry); outline-offset: 3px; }
+@keyframes bob { 0%, 100% { translate: 0 0; } 50% { translate: 0 -5px; } }
+
+.loading {
+  position: fixed; inset: 0; display: grid; place-content: center; justify-items: center; gap: 14px;
+  background: var(--sky); font-weight: 800; letter-spacing: 0.08em; z-index: 5;
+}
+.coin-spin {
+  width: 44px; height: 44px; border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #FFE58A, var(--gold) 55%, var(--gold-deep));
+  border: 3px solid var(--ink);
+  animation: spin 1s linear infinite;
+}
+@keyframes spin { 0% { transform: scaleX(1); } 50% { transform: scaleX(0.1); } 100% { transform: scaleX(1); } }
+
+.error {
+  position: fixed; inset: auto 20px 50% 20px; transform: translateY(50%);
+  max-width: 420px; margin: 0 auto; padding: 18px 20px; text-align: center;
+  background: var(--cream); border: 3px solid var(--ink); border-radius: 16px; box-shadow: 0 5px 0 var(--ink);
+}
+.error-title { margin: 0 0 6px; font-weight: 800; }
+.error-message { margin: 0; font-size: 14px; }
+
+@media (prefers-reduced-motion: reduce) { .hint { animation: none; } }

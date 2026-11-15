@@ -1,0 +1,218 @@
+{
+  "note": "背景・光・カメラ・画質",
+  "background": {
+    "top": "#8FD3F0",
+    "bottom": "#F9C9DF",
+    "horizon": "#FFE9D6"
+  },
+  "pedestal": {
+    "radius": 1.55,
+    "height": 0.16,
+    "color": "#BFEBDD"
+  },
+  "exposure": 0.9,
+  "environmentIntensity": 1.0,
+  "softboxes": [
+    {
+      "pos": [
+        0,
+        9,
+        2
+      ],
+      "size": [
+        8,
+        5
+      ],
+      "color": "#FFFFFF",
+      "intensity": 3.2
+    },
+    {
+      "pos": [
+        -9,
+        3.5,
+        5
+      ],
+      "size": [
+        2.4,
+        7
+      ],
+      "color": "#FFF2E0",
+      "intensity": 4.0
+    },
+    {
+      "pos": [
+        9,
+        2.5,
+        3
+      ],
+      "size": [
+        2.0,
+        6
+      ],
+      "color": "#E4F2FF",
+      "intensity": 3.0
+    },
+    {
+      "pos": [
+        2,
+        3,
+        -9
+      ],
+      "size": [
+        6,
+        2
+      ],
+      "color": "#FFE6F2",
+      "intensity": 2.2
+    }
+  ],
+  "key": {
+    "dir": [
+      -0.55,
+      1.0,
+      0.65
+    ],
+    "color": "#FFF4E6",
+    "intensity": 2.3,
+    "shadowSize": 2048
+  },
+  "fill": {
+    "dir": [
+      0.8,
+      0.4,
+      0.5
+    ],
+    "color": "#CFE6FF",
+    "intensity": 0.55
+  },
+  "hemi": {
+    "sky": "#DDEFFF",
+    "ground": "#F6D6C6",
+    "intensity": 0.4
+  },
+  "camera": {
+    "fov": 32,
+    "position": [
+      1.9,
+      1.45,
+      2.7
+    ],
+    "target": [
+      0,
+      0.42,
+      0
+    ],
+    "minDistance": 1.6,
+    "maxDistance": 7.0
+  },
+  "bloom": {
+    "strength": 0.14,
+    "radius": 0.15,
+    "threshold": 1.2
+  },
+  "quality": {
+    "high": {
+      "pixelRatio": 2,
+      "shadows": true,
+      "bloom": true
+    },
+    "low": {
+      "pixelRatio": 1.25,
+      "shadows": true,
+      "bloom": false
+    }
+  },
+  "envRoom": {
+    "top": "#FFF3E2",
+    "horizon": "#F2D9C4",
+    "bottom": "#E6CBB0",
+    "brightness": 0.75
+  },
+  "metalEnv": {
+    "note": "金属だけが映す部屋。暗い壁と床に、強い光の板",
+    "ceiling": "#5C4A3A",
+    "wall": "#2A2019",
+    "floor": "#0E0A07",
+    "intensity": 1.0,
+    "softboxes": [
+      {
+        "pos": [
+          0,
+          9,
+          -3
+        ],
+        "size": [
+          12,
+          7
+        ],
+        "color": "#FFF4E4",
+        "intensity": 3.2
+      },
+      {
+        "pos": [
+          0,
+          8,
+          4
+        ],
+        "size": [
+          6,
+          2.5
+        ],
+        "color": "#FFFFFF",
+        "intensity": 6.0
+      },
+      {
+        "pos": [
+          -8,
+          3,
+          6
+        ],
+        "size": [
+          1.6,
+          7
+        ],
+        "color": "#FFF0DC",
+        "intensity": 7.0
+      },
+      {
+        "pos": [
+          8,
+          2,
+          4
+        ],
+        "size": [
+          1.2,
+          6
+        ],
+        "color": "#FFFFFF",
+        "intensity": 4.5
+      },
+      {
+        "pos": [
+          3,
+          1.5,
+          -9
+        ],
+        "size": [
+          6,
+          1.2
+        ],
+        "color": "#FFE2C0",
+        "intensity": 3.0
+      },
+      {
+        "pos": [
+          1.5,
+          2.0,
+          9
+        ],
+        "size": [
+          9,
+          4
+        ],
+        "color": "#FFE6C4",
+        "intensity": 2.4
+      }
+    ]
+  }
+}

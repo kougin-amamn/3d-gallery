@@ -1,0 +1,108 @@
+{
+  "note": "宝箱の寸法(メートル)、色、動き。x が幅、y が上、z が手前",
+  "body": {
+    "width": 1.0,
+    "depth": 0.66,
+    "height": 0.5,
+    "wall": 0.05,
+    "planks": 3,
+    "gap": 0.006,
+    "bevel": 0.008
+  },
+  "lid": {
+    "staves": 6,
+    "gap": 0.006,
+    "bevel": 0.008,
+    "openDeg": 112
+  },
+  "bands": {
+    "width": 0.075,
+    "thick": 0.016,
+    "bevel": 0.005,
+    "strapX": [
+      -0.29,
+      0.29
+    ],
+    "rim": 0.06,
+    "corner": 0.07
+  },
+  "rivets": {
+    "radius": 0.014,
+    "spacing": 0.085
+  },
+  "colors": {
+    "woodLight": "#CF8B4C",
+    "woodDark": "#7A3F1C",
+    "woodTint": [
+      "#FFFFFF",
+      "#F2DCC4",
+      "#FFE9CF",
+      "#E9CDB0",
+      "#FFF4E4"
+    ],
+    "woodInner": "#6E3A1A",
+    "brass": "#E9C27A",
+    "velvet": "#A3132D",
+    "keyhole": "#1A0E08",
+    "lockGem": "#FF2E55",
+    "coin": "#F6D894",
+    "gems": [
+      "#E8103A",
+      "#1E6BFF",
+      "#10B85A",
+      "#8A2BE2",
+      "#FF9800"
+    ],
+    "goldPolished": "#F6D894"
+  },
+  "wood": {
+    "size": 1024,
+    "grainScale": 3.2,
+    "rings": 38,
+    "knots": 5,
+    "normalScale": 0.55,
+    "roughness": [
+      0.55,
+      0.8
+    ]
+  },
+  "metal": {
+    "note": "帯金は古い金(くすみ・槌目)、鋲・錠前・金貨は磨いた金",
+    "aged": 0.75,
+    "polished": 0.15,
+    "normalScale": 0.25
+  },
+  "treasure": {
+    "pileCoins": 260,
+    "pileGems": 7,
+    "burstCoins": 46,
+    "burstGems": 12,
+    "coinRadius": 0.045,
+    "coinThick": 0.009,
+    "gemSize": 0.05,
+    "gravity": 9.8,
+    "speed": [
+      1.6,
+      2.3
+    ],
+    "spread": 0.85,
+    "bounce": 0.38,
+    "friction": 0.72
+  },
+  "motion": {
+    "hopEvery": [
+      2.6,
+      4.2
+    ],
+    "hopHeight": 0.07,
+    "squash": 0.08,
+    "unlockTime": 0.35,
+    "lidSpring": {
+      "stiffness": 120,
+      "damping": 11
+    },
+    "burstDelay": 0.18,
+    "glow": 2.0
+  },
+  "lockScale": 1.25
+}

@@ -6,6 +6,22 @@
   },
   "works": [
     {
+      "id": "treasure",
+      "title": "宝箱",
+      "en": "Treasure Chest",
+      "href": "./treasure/",
+      "thumb": "./assets/thumbs/treasure.jpg",
+      "accent": "#F6D894",
+      "description": "はちみつ色の木に、古びた金の帯金と磨いた金の錠前。タップするとフタが勢いよく開き、刻印入りの金貨と宝石があふれ出して台の上で跳ねます。",
+      "features": [
+        "板・帯金・鋲まですべてコードで生成",
+        "槌目とくすみのある本物らしい金",
+        "金貨と宝石が跳ねて散らばる"
+      ],
+      "controls": "タップで開け閉め・ドラッグで回転・ホイールで拡大",
+      "version": "v0.1"
+    },
+    {
       "id": "clock",
       "title": "機械式時計",
       "en": "Mechanical Watch",

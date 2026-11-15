@@ -7,6 +7,7 @@
 | 静かな水槽 | [aquarium.md](aquarium.md) | `aquarium/` |
 | 太陽系ビューア | [solar-system.md](solar-system.md) | `solar-system/` |
 | 機械式時計 | [clock.md](clock.md) | `clock/` |
+| 宝箱 | [treasure.md](treasure.md) | `treasure/` |
 
 ## 運用
 
