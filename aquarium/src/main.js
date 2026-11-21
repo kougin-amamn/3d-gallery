@@ -18,7 +18,7 @@ const SHADERS = [
   'common', 'uw_pars_vertex', 'uw_vertex', 'uw_pars_fragment', 'uw_light',
   'world_vert', 'background_frag', 'surface_frag', 'rays_vert', 'rays_frag',
   'bubbles_vert', 'bubbles_frag', 'snow_vert', 'snow_frag', 'post_vert', 'grade_frag',
-  'fish_pars_vertex', 'fish_vertex', 'fish_pars_fragment', 'fish_color', 'fish_emissive',
+  'fish_pars_vertex', 'fish_vertex', 'fish_pars_fragment', 'fish_color', 'fish_emissive', 'fish_normal', 'fish_roughness',
   'plant_pars_vertex', 'plant_vertex', 'plant_project', 'plant_fragment',
 ];
 
@@ -133,6 +133,7 @@ async function boot() {
     post.setSamples(t.msaa);
     post.grade.uniforms.uAberration.value = t.aberration;
     fish.setDensity(t.fish);
+    fish.setDetail(t.fishDetail ?? 1);
     plants.setDensity(t.plants);
     snow.setDensity(t.snow);
     rays.setDensity(t.rays);

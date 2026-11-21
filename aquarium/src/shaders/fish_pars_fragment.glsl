@@ -14,7 +14,12 @@ uniform vec2 uFinAlpha;   // ヒレの不透明度(付け根, 縁)
 uniform float uFinTint;   // ヒレの色を uFinColor にどれだけ寄せるか(0 = 体の模様のまま)
 uniform float uFinRays;   // ヒレの条(すじ)の濃さ
 uniform float uTailX;     // 尾びれの付け根の x
+uniform vec4 uSkin;       // x: うろこの大きさ(体長比、0 で無し), y: うろこの凹凸, z: きらめき, w: 細部の量(画質)
+uniform vec3 uEyeIris;    // 虹彩の色
 float fishGlow = 0.0;
+float fishH = 0.0;        // 凹凸の高さ(うろこ・えらぶた・目の膨らみ)。法線の段で使う
+float fishRough = 0.0;    // 粗さの足し引き
+float fishEye = 0.0;      // 目の部分
 float fishFinMask = 0.0;
 
 float fishHash(vec2 p) {

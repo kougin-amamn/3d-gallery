@@ -19,7 +19,8 @@
       "plants": 0.5,
       "snow": 0.3,
       "rays": 0.5,
-      "pebbles": 0.4
+      "pebbles": 0.4,
+      "fishDetail": 0
     },
     "medium": {
       "label": "中",
@@ -32,7 +33,8 @@
       "plants": 0.8,
       "snow": 0.65,
       "rays": 0.8,
-      "pebbles": 0.8
+      "pebbles": 0.8,
+      "fishDetail": 1
     },
     "high": {
       "label": "高",
@@ -45,7 +47,8 @@
       "plants": 1.0,
       "snow": 1.0,
       "rays": 1.0,
-      "pebbles": 1.0
+      "pebbles": 1.0,
+      "fishDetail": 1
     }
   }
 }

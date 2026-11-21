@@ -33,9 +33,12 @@ export function createFish(scene3d, speciesData, world, uniforms, shaders) {
       uFinTint: { value: spec.fins?.tint ?? 0.7 },
       uFinRays: { value: spec.fins?.rays ?? 0 },
       uTailX: { value: 0.5 - (1 - spec.shape.tail) },
+      // 肌: うろこの大きさ・凹凸・きらめき、細部の量(画質で変わる)
+      uSkin: { value: new THREE.Vector4(spec.skin?.scale ?? 0, spec.skin?.depth ?? 0, spec.skin?.sparkle ?? 0, 1) },
+      uEyeIris: { value: new THREE.Color(spec.skin?.iris ?? '#8C8470') },
     };
     const makeMaterial = (fin) => {
-      const m = new THREE.MeshStandardMaterial({
+      const base = {
         color: 0xffffff,
         roughness: fin ? 0.5 : spec.material.roughness,
         metalness: fin ? 0 : spec.material.metalness,
@@ -43,7 +46,16 @@ export function createFish(scene3d, speciesData, world, uniforms, shaders) {
         envMapIntensity: 1.2,
         transparent: fin,
         depthWrite: !fin,
-      });
+      };
+      // 体は、肌の指定がある種だけ「ぬめり」(クリアコート)と、銀色の干渉色(イリデセンス)を持つ
+      const sk = spec.skin;
+      const m = !fin && sk
+        ? new THREE.MeshPhysicalMaterial({
+          ...base,
+          clearcoat: sk.clearcoat ?? 0, clearcoatRoughness: sk.clearcoatRoughness ?? 0.2,
+          iridescence: sk.iridescence ?? 0, iridescenceIOR: 1.35, iridescenceThicknessRange: [180, 420],
+        })
+        : new THREE.MeshStandardMaterial(base);
       return patchUnderwater(m, {
         shared: uniforms,
         shaders,
@@ -57,10 +69,13 @@ export function createFish(scene3d, speciesData, world, uniforms, shaders) {
           { at: '#include <common>', code: shaders.fish_pars_fragment, mode: 'after' },
           { at: '#include <color_fragment>', code: shaders.fish_color, mode: 'after' },
           { at: '#include <emissivemap_fragment>', code: shaders.fish_emissive, mode: 'after' },
+          { at: '#include <normal_fragment_maps>', code: shaders.fish_normal, mode: 'after' },
+          { at: '#include <roughnessmap_fragment>', code: shaders.fish_roughness, mode: 'after' },
         ],
       });
     };
     const mat = [makeMaterial(false), makeMaterial(true)];
+    for (const m of mat) m.userData.fishUniforms = fishUniforms;
 
     const mesh = new THREE.InstancedMesh(geometry, mat, spec.count);
     mesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);
@@ -83,6 +98,12 @@ export function createFish(scene3d, speciesData, world, uniforms, shaders) {
   return {
     schools,
     meshes,
+    /** 細部の量(うろこ・えらぶた)。画質「低」では 0 */
+    setDetail(v) {
+      for (const m of meshes) for (const mat of [].concat(m.mesh.material)) {
+        if (mat.userData.fishUniforms) mat.userData.fishUniforms.uSkin.value.w = v;
+      }
+    },
     setDensity(f) {
       for (const s of schools) {
         const min = s.spec.behavior === 'solo' ? s.spec.count : 1;

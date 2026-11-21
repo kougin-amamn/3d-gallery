@@ -150,7 +150,7 @@ export function buildFishGeometry(shape) {
         [xb, yb, zb], [xb - 0.01, yb - 0.02, zb],
         [xb - len, yb - 0.03, zb + side * len * 0.35], [xb - len * 0.7, yb - 0.055, zb + side * len * 0.3],
       ];
-      for (const p of pts) { positions.push(...p); normals.push(0, 0, side); fins.push(1); }
+      for (const p of pts) { positions.push(...p); normals.push(0, 0, side); fins.push(0.6); }   // 0.6 = 胸びれ(シェーダーで薄く描く)
       indices.push(start, start + 2, start + 1, start + 1, start + 2, start + 3);
     }
   }

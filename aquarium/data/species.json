@@ -42,7 +42,7 @@
       "glow": 0.9,
       "material": {
         "roughness": 0.32,
-        "metalness": 0.35
+        "metalness": 0.15
       },
       "shape": {
         "height": 0.25,
@@ -61,6 +61,16 @@
           0.78
         ],
         "sweep": 0.15
+      },
+      "skin": {
+        "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
+        "scale": 0.032,
+        "depth": 0.22,
+        "sparkle": 0.6,
+        "clearcoat": 0.6,
+        "iridescence": 0.5,
+        "iris": "#C9C1A8",
+        "clearcoatRoughness": 0.2
       }
     },
     {
@@ -105,7 +115,7 @@
       "glow": 0.0,
       "material": {
         "roughness": 0.36,
-        "metalness": 0.25
+        "metalness": 0.12
       },
       "shape": {
         "height": 0.3,
@@ -124,6 +134,16 @@
           0.78
         ],
         "sweep": 0.1
+      },
+      "skin": {
+        "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
+        "scale": 0.032,
+        "depth": 0.25,
+        "sparkle": 0.5,
+        "clearcoat": 0.5,
+        "iridescence": 0.35,
+        "iris": "#D7B062",
+        "clearcoatRoughness": 0.2
       }
     },
     {
@@ -168,7 +188,7 @@
       "glow": 0.0,
       "material": {
         "roughness": 0.34,
-        "metalness": 0.18
+        "metalness": 0.08
       },
       "shape": {
         "height": 0.42,
@@ -187,6 +207,16 @@
           0.86
         ],
         "sweep": 0.25
+      },
+      "skin": {
+        "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
+        "scale": 0.03,
+        "depth": 0.25,
+        "sparkle": 0.3,
+        "clearcoat": 0.5,
+        "iridescence": 0.2,
+        "iris": "#C3913E",
+        "clearcoatRoughness": 0.2
       }
     },
     {
@@ -231,7 +261,7 @@
       "glow": 0.0,
       "material": {
         "roughness": 0.5,
-        "metalness": 0.15
+        "metalness": 0.08
       },
       "shape": {
         "height": 0.32,
@@ -250,6 +280,16 @@
           0.76
         ],
         "sweep": 0.2
+      },
+      "skin": {
+        "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
+        "scale": 0.06,
+        "depth": 0.4,
+        "sparkle": 0.2,
+        "clearcoat": 0.35,
+        "iridescence": 0.15,
+        "iris": "#9C8A60",
+        "clearcoatRoughness": 0.2
       }
     },
     {
@@ -294,7 +334,7 @@
       "glow": 0.0,
       "material": {
         "roughness": 0.26,
-        "metalness": 0.45
+        "metalness": 0.2
       },
       "shape": {
         "height": 0.78,
@@ -326,7 +366,17 @@
         "tint": 0.3,
         "rays": 0.45
       },
-      "zMax": 2.5
+      "zMax": 2.5,
+      "skin": {
+        "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
+        "scale": 0.022,
+        "depth": 0.22,
+        "sparkle": 0.7,
+        "clearcoat": 0.55,
+        "iridescence": 0.6,
+        "iris": "#B5382A",
+        "clearcoatRoughness": 0.2
+      }
     },
     {
       "id": "angelKoi",
@@ -370,7 +420,7 @@
       "glow": 0.0,
       "material": {
         "roughness": 0.3,
-        "metalness": 0.2
+        "metalness": 0.1
       },
       "shape": {
         "height": 0.78,
@@ -402,7 +452,17 @@
         "tint": 0.75,
         "rays": 0.45
       },
-      "zMax": 2.5
+      "zMax": 2.5,
+      "skin": {
+        "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
+        "scale": 0.022,
+        "depth": 0.22,
+        "sparkle": 0.4,
+        "clearcoat": 0.5,
+        "iridescence": 0.3,
+        "iris": "#B5382A",
+        "clearcoatRoughness": 0.2
+      }
     }
   ],
   "note": "色の設計: 地の色(水・水草)が約6割、中間色(砂・岩・流木)が約3割、差し色(オレンジ・赤)は約1割。差し色は主役(エンゼル・グラミー)と手前(エビ・赤い水草)に集める",

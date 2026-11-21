@@ -23,10 +23,13 @@
     body = mix(body, uAccent2, smoothstep(0.25, 0.45, yn) * smoothstep(0.2, 0.4, lp.x) * 0.45);
   } else if (uPattern == 3) {
     // 斑点(コリドラス系)
+    // 点は格子に並ばないよう、位置と大きさを1つずつずらす
     vec2 cell = floor(lp.xy * vec2(34.0, 30.0));
     float h = fishHash(cell);
-    vec2 f = fract(lp.xy * vec2(34.0, 30.0)) - 0.5;
-    float spot = step(0.55, h) * smoothstep(0.42, 0.25, length(f));
+    vec2 jit = vec2(fishHash(cell + 3.7), fishHash(cell + 9.1)) - 0.5;
+    vec2 f = fract(lp.xy * vec2(34.0, 30.0)) - 0.5 - jit * 0.45;
+    float rad = 0.16 + 0.2 * fishHash(cell + 5.3);
+    float spot = step(0.5, h) * smoothstep(rad + 0.08, rad - 0.04, length(f * vec2(1.0, 0.8 + 0.4 * h)));
     body = mix(body, uAccent, spot * 0.75 * smoothstep(-0.3, 0.0, yn));
     // 側面の金属光沢帯
     body = mix(body, uAccent2, smoothstep(0.06, 0.0, abs(yn - 0.02)) * 0.4);
@@ -86,12 +89,55 @@
   if (uPattern == 2) body = mix(body, uAccent, vFin * smoothstep(0.04, 0.0, abs(lp.x + 0.12)) * 0.6);
   if (uPattern == 7) body = mix(body, uAccent2, vFin * smoothstep(0.1, 0.4, yn) * 0.55);
 
-  // 目
-  float side = step(0.3, abs(vFishNz)) * (1.0 - vFin);
+  // ---- 肌(うろこ・えらぶた・目)。uSkin.x が 0 の種は今までどおり ----
+  float bodyMask = 1.0 - step(0.5, vFin);
+  if (uSkin.x > 0.0 && uSkin.w > 0.0) {
+    // うろこ: 尾の側へ重なって並ぶ列。1列おきに半分ずらす
+    vec2 sc = vec2(lp.x, lp.y * 1.25) / uSkin.x;
+    float row = floor(sc.y);
+    sc.x += 0.5 * mod(row, 2.0);
+    vec2 cell = vec2(floor(sc.x), row);
+    vec2 f = fract(sc) - vec2(0.62, 0.5);           // 中心を頭の側へずらし、尾の側の縁が見える
+    float d = length(f * vec2(1.0, 1.15));
+    float dome = smoothstep(0.68, 0.05, d);
+    float edge = smoothstep(0.34, 0.5, d);
+    // 遠くて細かすぎるときは消す(ちらつき防止)
+    float aa = 1.0 - smoothstep(0.22, 0.6, fwidth(lp.x) / uSkin.x);
+    // 頭(目より前)と、背中・腹の縁の近くにはうろこを出さない
+    float area = smoothstep(uEye.x + 0.02, uEye.x - 0.08, lp.x) * smoothstep(0.5, 0.36, abs(yn)) * bodyMask;
+    float k = aa * area * uSkin.w;
+    body *= 1.0 - edge * 0.1 * k;
+    float h1 = fishHash(cell + 7.1);
+    // きらめき: ところどころのうろこだけが強く光る(泳ぐと点滅して見える)
+    float spark = step(1.0 - uSkin.z * 0.12, h1) * dome * k;
+    body *= 1.0 + spark * 0.35 + (h1 - 0.5) * 0.06 * k;
+    fishH += (dome * 0.8 - edge * 0.4) * uSkin.y * k;
+    fishRough += (edge * 0.18 - spark * 0.25) * k;
+
+    // えらぶた: 目の後ろの弧の溝
+    vec2 gc = vec2(uEye.x + 0.015, uEye.y - uBodyH * 0.06);
+    float gr = uBodyH * 0.32 + 0.03;
+    float gd = length((lp.xy - gc) * vec2(1.0, 0.82)) - gr;
+    float gill = smoothstep(0.012, 0.0, abs(gd)) * step(lp.x, gc.x) * smoothstep(0.42, 0.25, abs(yn)) * bodyMask * uSkin.w;
+    body *= 1.0 - gill * 0.22;
+    fishH -= gill * 0.5 / max(uSkin.y, 0.05);
+  }
+
+  // 目: 黒い瞳と、細い金属光沢の虹彩。うるんだ膨らみ
+  float side = step(0.3, abs(vFishNz)) * bodyMask;
   float ed = length(lp.xy - uEye.xy);
-  float pupil = smoothstep(uEye.z * 0.62, uEye.z * 0.5, ed);
-  float iris = smoothstep(uEye.z, uEye.z * 0.88, ed);
-  body = mix(body, mix(vec3(0.55, 0.52, 0.42), vec3(0.008), pupil), iris * side);
+  if (uSkin.x > 0.0) {
+    float eyeIn = smoothstep(uEye.z * 1.05, uEye.z * 0.92, ed) * side;
+    float pupil = smoothstep(uEye.z * 0.72, uEye.z * 0.6, ed);
+    vec3 eye = mix(uEyeIris * (0.75 + 0.5 * fishNoise(lp.xy * 260.0)), vec3(0.006), pupil);
+    body = mix(body * (1.0 - smoothstep(uEye.z * 1.5, uEye.z, ed) * 0.35 * side), eye, eyeIn);   // 目のまわりは少し暗い
+    fishEye = eyeIn;
+    fishH += sqrt(max(0.0, 1.0 - pow(ed / uEye.z, 2.0))) * 0.6 * side / max(uSkin.y, 0.05);
+  } else {
+    float pupil = smoothstep(uEye.z * 0.62, uEye.z * 0.5, ed);
+    float iris = smoothstep(uEye.z, uEye.z * 0.88, ed);
+    body = mix(body, mix(vec3(0.55, 0.52, 0.42), vec3(0.008), pupil), iris * side);
+  }
 
   diffuseColor.rgb *= body;
   // ヒレは半透明。付け根は濃く、縁ほど薄い
@@ -103,7 +149,8 @@
     finEdge = smoothstep(0.0, 1.0, far);
   }
   float finA = clamp(mix(uFinAlpha.x, uFinAlpha.y, finEdge) + rays * 0.18, 0.0, 1.0);
-  if (vFin > 0.5 && vFin < 0.95) finA = 0.85;     // 腹びれの糸
+  if (abs(vFin - 0.8) < 0.05) finA = 0.85;        // 腹びれの糸
+  if (abs(vFin - 0.6) < 0.05) finA = 0.3;         // 胸びれ(ほぼ透明)
   diffuseColor.a = mix(1.0, finA, step(0.5, vFin));
   fishFinMask = vFin;
 }
