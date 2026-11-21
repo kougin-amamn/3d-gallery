@@ -30,7 +30,7 @@ export class School {
         center.z + (rng() - 0.5) * 4
       );
       p.x = clamp(p.x, b.min.x + 1, b.max.x - 1);
-      p.z = clamp(p.z, b.min.z + 1, b.max.z - 1);
+      p.z = clamp(p.z, b.min.z + 1, Math.min(b.max.z, spec.zMax ?? Infinity) - 1);
       const floor = world.sandHeight(p.x, p.z);
       p.y = spec.behavior === 'bottom'
         ? floor + 0.12
@@ -152,7 +152,7 @@ export class School {
         return 0;
       };
       desired.x += wall(a.p.x, b.min.x, b.max.x) * 4;
-      desired.z += wall(a.p.z, b.min.z, b.max.z) * 4;
+      desired.z += wall(a.p.z, b.min.z, Math.min(b.max.z, spec.zMax ?? Infinity)) * 4;
       if (spec.behavior !== 'bottom') desired.y += wall(a.p.y, b.min.y, b.max.y) * 3;
 
       // ---- 障害物(岩・流木) ----
@@ -221,7 +221,7 @@ export class School {
 
       // 接地と範囲内への押し戻し
       a.p.x = clamp(a.p.x, b.min.x, b.max.x);
-      a.p.z = clamp(a.p.z, b.min.z, b.max.z);
+      a.p.z = clamp(a.p.z, b.min.z, Math.min(b.max.z, spec.zMax ?? Infinity));
       const fl = w.sandHeight(a.p.x, a.p.z);
       if (spec.behavior === 'bottom') {
         a.p.y += (fl + 0.1 * a.scale + 0.04 - a.p.y) * Math.min(1, dt * 6);

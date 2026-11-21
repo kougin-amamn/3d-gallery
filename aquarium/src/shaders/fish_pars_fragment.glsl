@@ -10,6 +10,10 @@ uniform float uBodyH;
 uniform vec3 uEye;       // x, y, 半径
 uniform int uPattern;    // 0 無地, 1 ネオン, 2 縦縞, 3 斑点, 4 楔形, 5 グラミー, 6 ハニー, 7 コイ, 8 カーディナル
 uniform float uGlow;
+uniform vec2 uFinAlpha;   // ヒレの不透明度(付け根, 縁)
+uniform float uFinTint;   // ヒレの色を uFinColor にどれだけ寄せるか(0 = 体の模様のまま)
+uniform float uFinRays;   // ヒレの条(すじ)の濃さ
+uniform float uTailX;     // 尾びれの付け根の x
 float fishGlow = 0.0;
 float fishFinMask = 0.0;
 

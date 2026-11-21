@@ -72,7 +72,16 @@
   }
 
   // ヒレ: 体色に寄せつつ明るく
-  vec3 fin = mix(body, uFinColor, 0.7);
+  vec3 fin = mix(body, uFinColor, uFinTint);
+  // 条(すじ): 尾びれは付け根から放射状、背びれ・尻びれは後ろへ流れる斜めの筋
+  float rays = 0.0;
+  if (uFinRays > 0.0) {
+    float r = lp.x < uTailX
+      ? sin(atan(lp.y, uTailX - lp.x + 0.02) * 26.0)
+      : sin((lp.x + abs(lp.y) * 0.75) * 80.0);
+    rays = smoothstep(0.35, 0.95, r) * uFinRays;
+    fin *= 1.0 - rays * 0.45;
+  }
   body = mix(body, fin, vFin);
   if (uPattern == 2) body = mix(body, uAccent, vFin * smoothstep(0.04, 0.0, abs(lp.x + 0.12)) * 0.6);
   if (uPattern == 7) body = mix(body, uAccent2, vFin * smoothstep(0.1, 0.4, yn) * 0.55);
@@ -87,6 +96,14 @@
   diffuseColor.rgb *= body;
   // ヒレは半透明。付け根は濃く、縁ほど薄い
   float finEdge = smoothstep(0.0, 0.3, length(vec2(min(lp.x - uEye.x + 0.9, 0.0), abs(yn) - 0.45)));
-  diffuseColor.a = mix(1.0, mix(0.72, 0.42, finEdge), vFin);
+  if (uFinRays > 0.0) {
+    // 体から離れるほど薄く: 背びれ・尻びれは体の上下の縁から、尾びれは付け根から測る。
+    // 付け根を濃くすると、体とヒレがひと続きの菱形に見える
+    float far = lp.x < uTailX ? (uTailX - lp.x) / 0.26 : (abs(yn) - 0.45) / 0.65;
+    finEdge = smoothstep(0.0, 1.0, far);
+  }
+  float finA = clamp(mix(uFinAlpha.x, uFinAlpha.y, finEdge) + rays * 0.18, 0.0, 1.0);
+  if (vFin > 0.5 && vFin < 0.95) finA = 0.85;     // 腹びれの糸
+  diffuseColor.a = mix(1.0, finA, step(0.5, vFin));
   fishFinMask = vFin;
 }

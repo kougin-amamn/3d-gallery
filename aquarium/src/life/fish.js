@@ -28,6 +28,11 @@ export function createFish(scene3d, speciesData, world, uniforms, shaders) {
       uEye: { value: eye },
       uPattern: { value: PATTERNS[spec.pattern] ?? 0 },
       uGlow: { value: spec.glow ?? 0 },
+      // ヒレ: 不透明度(付け根, 縁)、体色をどれだけ残すか、条(すじ)の濃さ、尾びれの付け根の位置
+      uFinAlpha: { value: new THREE.Vector2(...(spec.fins?.alpha ?? [0.72, 0.42])) },
+      uFinTint: { value: spec.fins?.tint ?? 0.7 },
+      uFinRays: { value: spec.fins?.rays ?? 0 },
+      uTailX: { value: 0.5 - (1 - spec.shape.tail) },
     };
     const makeMaterial = (fin) => {
       const m = new THREE.MeshStandardMaterial({

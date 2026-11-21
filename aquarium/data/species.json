@@ -288,7 +288,7 @@
         "belly": "#EEF0EE",
         "accent": "#20242A",
         "accent2": "#FF7A45",
-        "fin": "#C8CED2"
+        "fin": "#B9C2C8"
       },
       "pattern": "bars",
       "glow": 0.0,
@@ -297,23 +297,36 @@
         "metalness": 0.45
       },
       "shape": {
-        "height": 0.62,
-        "width": 0.08,
-        "tail": 0.26,
-        "tailHeight": 0.42,
-        "tailFork": 0.15,
-        "dorsal": 0.5,
+        "height": 0.78,
+        "width": 0.07,
+        "tail": 0.24,
+        "tailHeight": 0.46,
+        "tailFork": -0.05,
+        "dorsal": 0.52,
         "dorsalRange": [
-          0.28,
-          0.6
+          0.22,
+          0.8
         ],
         "anal": 0.5,
         "analRange": [
-          0.3,
-          0.62
+          0.26,
+          0.82
         ],
-        "sweep": 0.8
-      }
+        "sweep": 0.8,
+        "profile": "disc",
+        "finStyle": "swept",
+        "pelvic": 0.55
+      },
+      "fins": {
+        "note": "alpha は不透明度(付け根, 縁)、tint はヒレの色を fin にどれだけ寄せるか(0 で体の縞がヒレまで続く)、rays は条の濃さ",
+        "alpha": [
+          0.8,
+          0.05
+        ],
+        "tint": 0.3,
+        "rays": 0.45
+      },
+      "zMax": 2.5
     },
     {
       "id": "angelKoi",
@@ -351,7 +364,7 @@
         "belly": "#FFFFFF",
         "accent": "#1B1B22",
         "accent2": "#FF6F1E",
-        "fin": "#F4EEE4"
+        "fin": "#EDE6DA"
       },
       "pattern": "koi",
       "glow": 0.0,
@@ -360,24 +373,38 @@
         "metalness": 0.2
       },
       "shape": {
-        "height": 0.62,
-        "width": 0.08,
-        "tail": 0.26,
-        "tailHeight": 0.42,
-        "tailFork": 0.15,
-        "dorsal": 0.5,
+        "height": 0.78,
+        "width": 0.07,
+        "tail": 0.24,
+        "tailHeight": 0.46,
+        "tailFork": -0.05,
+        "dorsal": 0.52,
         "dorsalRange": [
-          0.28,
-          0.6
+          0.22,
+          0.8
         ],
         "anal": 0.5,
         "analRange": [
-          0.3,
-          0.62
+          0.26,
+          0.82
         ],
-        "sweep": 0.8
-      }
+        "sweep": 0.8,
+        "profile": "disc",
+        "finStyle": "swept",
+        "pelvic": 0.55
+      },
+      "fins": {
+        "note": "alpha は不透明度(付け根, 縁)、tint はヒレの色を fin にどれだけ寄せるか(0 で体の縞がヒレまで続く)、rays は条の濃さ",
+        "alpha": [
+          0.8,
+          0.05
+        ],
+        "tint": 0.75,
+        "rays": 0.45
+      },
+      "zMax": 2.5
     }
   ],
-  "note": "色の設計: 地の色(水・水草)が約6割、中間色(砂・岩・流木)が約3割、差し色(オレンジ・赤)は約1割。差し色は主役(エンゼル・グラミー)と手前(エビ・赤い水草)に集める"
+  "note": "色の設計: 地の色(水・水草)が約6割、中間色(砂・岩・流木)が約3割、差し色(オレンジ・赤)は約1割。差し色は主役(エンゼル・グラミー)と手前(エビ・赤い水草)に集める",
+  "note_shape": "shape.profile: 'disc' で円盤形の体(省略時は流線形)。shape.finStyle: 'swept' で後ろへ伸びる三角の背びれ・尻びれ。shape.pelvic: 腹びれの糸の長さ(0 で無し)。fins: ヒレの不透明度・色・条。zMax: 手前の限界"
 }

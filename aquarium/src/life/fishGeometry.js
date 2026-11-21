@@ -8,10 +8,17 @@ export function buildFishGeometry(shape) {
   const bodyLen = 1 - tailLen;
   const x0 = 0.5;                    // 吻端
   const xPed = x0 - bodyLen;         // 尾柄(体と尾の境目)
-  const sMax = 0.34;                 // 体高が最大になる位置
-  const ped = 0.16;                  // 尾柄の太さ(最大比)
+  const disc = shape.profile === 'disc';
+  const sMax = disc ? 0.42 : 0.34;   // 体高が最大になる位置
+  const ped = disc ? 0.13 : 0.16;    // 尾柄の太さ(最大比)
 
   const profile = (s) => {
+    if (disc) {
+      // 円盤形: 小さくとがった口から、まっすぐな額で急に高くなり、後ろは短く絞れる
+      if (s < sMax) { const u = s / sMax; return 0.16 + 0.84 * Math.pow(Math.sin(u * Math.PI / 2), 0.85); }
+      const t = (s - sMax) / (1 - sMax);
+      return 1 - (1 - ped) * Math.pow(t, 1.25) * (3 - 2 * t) / (1 + 0.25 * t);
+    }
     if (s < sMax) {
       const u = (sMax - s) / sMax;
       return Math.sqrt(Math.max(0, 1 - u * u));
@@ -113,12 +120,16 @@ export function buildFishGeometry(shape) {
       const s = s0 + (s1 - s0) * u;
       const xBase = x0 - s * bodyLen;
       const yBase = top ? bodyTop(s) - 0.01 : bodyBottom(s) + 0.01;
-      // 前が高く後ろへ流れる輪郭
-      const env = Math.pow(Math.sin(Math.PI * Math.min(1, u * 1.15 + 0.02)), 0.6) * (1 - 0.25 * u);
+      // 前が高く後ろへ流れる輪郭。swept は前縁が長く伸び、先端が後ろ上方へとがる三角(エンゼル)
+      const env = shape.finStyle === 'swept'
+        ? 0.08 + 0.92 * Math.pow(Math.sin(Math.min(1, u * 1.05) * Math.PI / 2), 0.7)
+        : Math.pow(Math.sin(Math.PI * Math.min(1, u * 1.15 + 0.02)), 0.6) * (1 - 0.25 * u);
       for (let j = 0; j <= nv; j++) {
         const v = j / nv;
         const hgt = height * env * v;
-        const sweep = shape.sweep * height * v * v * (0.4 + u);
+        const sweep = shape.finStyle === 'swept'
+          ? shape.sweep * height * Math.pow(v, 1.6) * (0.25 + 1.1 * u)
+          : shape.sweep * height * v * v * (0.4 + u);
         grid.push([xBase - sweep, yBase + (top ? hgt : -hgt)]);
       }
     }
@@ -141,6 +152,30 @@ export function buildFishGeometry(shape) {
       ];
       for (const p of pts) { positions.push(...p); normals.push(0, 0, side); fins.push(1); }
       indices.push(start, start + 2, start + 1, start + 1, start + 2, start + 3);
+    }
+  }
+
+  // 腹びれ: 胸の下から後ろ下方へ長く垂れる糸(エンゼルの特徴)。左右2本
+  if (shape.pelvic > 0) {
+    const s = sMax * 0.55;
+    const xb = x0 - s * bodyLen, yb = bodyBottom(s) + 0.02;
+    const len = shape.pelvic, nu = 10;
+    for (const side of [1, -1]) {
+      const start = positions.length / 3;
+      const zb = W * 0.18 * side;
+      for (let i = 0; i <= nu; i++) {
+        const u = i / nu;
+        const w = 0.03 * (1 - u) + 0.006;                       // 根元は広く、先は糸のように細い
+        const x = xb - len * 0.42 * u, y = yb - len * Math.sin(u * 1.2) * 0.92;
+        for (const k of [-0.5, 0.5]) {
+          positions.push(x + k * w * 0.6, y + k * w, zb + side * 0.01 * u);
+          normals.push(0, 0, side); fins.push(0.8);   // 0.8 = 腹びれの糸(シェーダーで濃く描く)
+        }
+      }
+      for (let i = 0; i < nu; i++) {
+        const a = start + i * 2;
+        indices.push(a, a + 2, a + 1, a + 1, a + 2, a + 3);
+      }
     }
   }
 
