@@ -9,7 +9,7 @@ const BLADE = {
   sword:  { width: 0.36, segs: 8, outline: (t) => Math.sin(Math.PI * (0.12 + 0.88 * t)) * (1 - t * 0.2), cup: 0.05, height: [1.4, 2.6], flex: [0.12, 0.25], arch: [0.4, 1.1], twist: [-0.5, 0.5] },
   // 赤い有茎草(ロタラなど): 細い茎に小さな葉が段々に付き、先端ほど赤い
   stem:   { width: 0.03, segs: 20, outline: () => 1, cup: 0.0, height: [2.0, 3.6], flex: [0.1, 0.22], arch: [0.05, 0.25], twist: [-0.3, 0.3], stem: true },
-  carpet: { width: 0.06, segs: 3, outline: (t) => 1 - t * 0.85, cup: 0.0, height: [0.16, 0.36], flex: [0.08, 0.16], arch: [0.02, 0.08], twist: [-0.6, 0.6], tuft: 7 },
+  carpet: { width: 0.06, segs: 2, outline: (t) => 1 - t * 0.85, cup: 0.0, height: [0.16, 0.36], flex: [0.08, 0.16], arch: [0.02, 0.08], twist: [-0.6, 0.6], tuft: 7 },
 };
 
 function stemGeometry(b, baseColor, tipColor) {
@@ -59,19 +59,22 @@ function bladeGeometry(kind, baseColor, tipColor) {
   if (b.stem) return stemGeometry(b, baseColor, tipColor);
   const positions = [], colors = [], uvs = [], indices = [];
   const c = new THREE.Color();
+  // 平らな葉(cup が 0)は中央の列が要らないので、幅方向を2列にして三角形を半分にする
+  const cols = b.cup ? [-1, 0, 1] : [-1, 1];
+  const nc = cols.length;
   for (let i = 0; i <= b.segs; i++) {
     const t = i / b.segs;
     const w = b.width * Math.max(b.outline(t), 0.02) * 0.5;
     c.lerpColors(baseColor, tipColor, Math.pow(t, 0.8));
-    for (const s of [-1, 0, 1]) {
+    for (const s of cols) {
       positions.push(s * w, t, Math.abs(s) * b.cup);
       colors.push(c.r * (s === 0 ? 0.92 : 1), c.g * (s === 0 ? 0.92 : 1), c.b * (s === 0 ? 0.92 : 1));
       uvs.push((s + 1) / 2, t);
     }
   }
   for (let i = 0; i < b.segs; i++) {
-    for (let j = 0; j < 2; j++) {
-      const a = i * 3 + j, d = a + 3;
+    for (let j = 0; j < nc - 1; j++) {
+      const a = i * nc + j, d = a + nc;
       indices.push(a, a + 1, d, a + 1, d + 1, d);
     }
   }

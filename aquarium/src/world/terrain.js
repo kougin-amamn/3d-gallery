@@ -78,6 +78,26 @@ export function createTerrain(scene3d, cfg, palettes, uniforms, shaders, sandHei
   geo.rotateX(-Math.PI / 2);
   geo.translate(0, 0, -4);
   const pos = geo.attributes.position;
+  // 格子の間隔を場所で変える: カメラから見える範囲(inner)に頂点の share 割を集め、外側は粗くする。
+  // UV は位置から付け直す(砂粒のテクスチャの密度がどこでも同じになるように)
+  if (s.inner) {
+    const [hx, hz] = [s.size[0] / 2, s.size[1] / 2];
+    const zc = -4;
+    // v(-half〜half)を、内側 share の範囲は [-lo, hi]、外側は残りへ割り当てる(lo, hi は正の長さ)
+    const warp = (v, half, lo, hi, share) => {
+      const u = v / half, mag = u < 0 ? lo : hi;
+      if (Math.abs(u) <= share) return (u / share) * mag;
+      const k = (Math.abs(u) - share) / (1 - share);
+      return Math.sign(u) * (mag + k * (half - mag));
+    };
+    const uv = geo.attributes.uv;
+    for (let i = 0; i < pos.count; i++) {
+      const x = warp(pos.getX(i), hx, -s.inner.x[0], s.inner.x[1], s.inner.share);
+      const z = zc + warp(pos.getZ(i) - zc, hz, zc - s.inner.z[0], s.inner.z[1] - zc, s.inner.share);
+      pos.setX(i, x); pos.setZ(i, z);
+      uv.setXY(i, (x + hx) / s.size[0], 1 - (z - zc + hz) / s.size[1]);
+    }
+  }
   const colors = new Float32Array(pos.count * 3);
   const base = new THREE.Color(palettes.base.sand);
   const dark = base.clone().multiplyScalar(0.55).lerp(new THREE.Color('#5E5A44'), 0.4);

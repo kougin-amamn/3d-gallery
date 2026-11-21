@@ -48,14 +48,26 @@
       50
     ],
     "segments": [
-      320,
-      200
+      180,
+      110
     ],
     "duneScale": 0.075,
     "duneHeight": 0.75,
     "backRise": 2.4,
     "rippleHeight": 0.035,
-    "grainRepeat": 14
+    "grainRepeat": 14,
+    "inner": {
+      "note": "見える範囲(x, z の最小と最大)に頂点の share 割を集める",
+      "x": [
+        -17,
+        17
+      ],
+      "z": [
+        -13,
+        9
+      ],
+      "share": 0.72
+    }
   },
   "rocks": [
     {

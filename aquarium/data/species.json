@@ -60,7 +60,12 @@
           0.58,
           0.78
         ],
-        "sweep": 0.15
+        "sweep": 0.15,
+        "segments": [
+          16,
+          10
+        ],
+        "finSegments": 0.6
       },
       "skin": {
         "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
@@ -133,7 +138,12 @@
           0.6,
           0.78
         ],
-        "sweep": 0.1
+        "sweep": 0.1,
+        "segments": [
+          16,
+          10
+        ],
+        "finSegments": 0.6
       },
       "skin": {
         "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
@@ -206,7 +216,12 @@
           0.3,
           0.86
         ],
-        "sweep": 0.25
+        "sweep": 0.25,
+        "segments": [
+          22,
+          12
+        ],
+        "finSegments": 0.8
       },
       "skin": {
         "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
@@ -279,7 +294,12 @@
           0.62,
           0.76
         ],
-        "sweep": 0.2
+        "sweep": 0.2,
+        "segments": [
+          20,
+          12
+        ],
+        "finSegments": 0.8
       },
       "skin": {
         "note": "scale はうろこの大きさ(体長比)、depth は凹凸、sparkle はきらめくうろこの割合、clearcoat はぬめり、iridescence は銀色の干渉色、iris は虹彩の色",
@@ -466,5 +486,6 @@
     }
   ],
   "note": "色の設計: 地の色(水・水草)が約6割、中間色(砂・岩・流木)が約3割、差し色(オレンジ・赤)は約1割。差し色は主役(エンゼル・グラミー)と手前(エビ・赤い水草)に集める",
-  "note_shape": "shape.profile: 'disc' で円盤形の体(省略時は流線形)。shape.finStyle: 'swept' で後ろへ伸びる三角の背びれ・尻びれ。shape.pelvic: 腹びれの糸の長さ(0 で無し)。fins: ヒレの不透明度・色・条。zMax: 手前の限界"
+  "note_shape": "shape.profile: 'disc' で円盤形の体(省略時は流線形)。shape.finStyle: 'swept' で後ろへ伸びる三角の背びれ・尻びれ。shape.pelvic: 腹びれの糸の長さ(0 で無し)。fins: ヒレの不透明度・色・条。zMax: 手前の限界",
+  "note_segments": "shape.segments: 体の分割数 [長さ方向, 周方向](省略時 [30, 18])。shape.finSegments: ヒレの分割の倍率(省略時 1)"
 }

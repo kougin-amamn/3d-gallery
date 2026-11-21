@@ -30,7 +30,7 @@ export function buildFishGeometry(shape) {
   const positions = [], normals = [], fins = [], indices = [];
 
   // ---- 胴体(楕円断面のロフト) ----
-  const L = 30, R = 18;
+  const [L, R] = shape.segments ?? [30, 18];   // 体の長さ方向・周方向の分割数(小さな魚は少なくてよい)
   const centerY = (s) => H * 0.04 * Math.sin(Math.PI * s);     // 背中側へわずかに反る
   for (let i = 0; i <= L; i++) {
     const s = i / L;
@@ -92,8 +92,9 @@ export function buildFishGeometry(shape) {
   const bodyBottom = (s) => centerY(s) - H * 0.5 * profile(s) * 1.0;
 
   // 尾びれ(二叉)
+  const fd = shape.finSegments ?? 1;   // ヒレの分割の倍率
   {
-    const nu = 8, nv = 10;
+    const nu = Math.max(3, Math.round(8 * fd)), nv = Math.max(4, Math.round(10 * fd));
     const pedH = H * ped;
     const tailH = shape.tailHeight;
     const grid = [];
@@ -112,7 +113,7 @@ export function buildFishGeometry(shape) {
 
   // 背びれ・尻びれ
   const longFin = (range, height, top) => {
-    const nu = 10, nv = 6;
+    const nu = Math.max(4, Math.round(10 * fd)), nv = Math.max(3, Math.round(6 * fd));
     const grid = [];
     const [s0, s1] = range;
     for (let i = 0; i <= nu; i++) {
