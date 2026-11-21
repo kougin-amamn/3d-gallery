@@ -410,5 +410,49 @@
     "onWood": 10,
     "length": 0.46,
     "color": "#D9261C"
+  },
+  "hardscape": {
+    "note": "岩と流木の作り方。岩は球を平面で切り落として角張らせる(cuts 枚、cutDepth は中心からの距離)。grain は縦の筋の細かさ、grainDepth は深さ。流木は points の太い枝から depth 段まで枝分かれ(children 本)、minRadius より細い枝は作らない。岩の網目の細かさ detail は大きさ detailScale の岩のときの値で、小さな岩ほど粗くする",
+    "rock": {
+      "detail": 16,
+      "cuts": 12,
+      "cutDepth": [
+        0.5,
+        0.9
+      ],
+      "grain": 8.0,
+      "grainDepth": 0.07,
+      "moss": 0.7,
+      "roughness": 0.9,
+      "colors": {
+        "light": "#7C7F80",
+        "dark": "#4A4D50",
+        "vein": "#A9ABA6",
+        "moss": "#3F5E2A",
+        "sand": "#9C8C6C"
+      },
+      "detailScale": 2.7
+    },
+    "wood": {
+      "seed": 17,
+      "depth": 3,
+      "children": [
+        3,
+        4
+      ],
+      "minRadius": 0.03,
+      "gnarl": 2.0,
+      "roots": 4,
+      "grooves": 5.0,
+      "grooveDepth": 0.22,
+      "segPerUnit": 14,
+      "roughness": 0.85,
+      "colors": {
+        "groove": "#2A1C12",
+        "wood": "#5E412A",
+        "ridge": "#946C48",
+        "bleached": "#B49A7C"
+      }
+    }
   }
 }
